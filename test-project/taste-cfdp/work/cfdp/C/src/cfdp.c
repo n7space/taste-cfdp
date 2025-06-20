@@ -9,6 +9,24 @@
 */
 #include "cfdp.h"
 #include "cfdp_core.h"
+#include "string.h"
+
+#define MAX_RECEIVE_OPERATIONS 1
+#define MAX_SEND_OPERATIONS 1
+
+typedef struct {
+	asn1SccGAMMA_OPERATION_ID operation_id;
+	asn1SccGAMMA_CFDP_TRANSACTION_ID transaction_id;
+	asn1SccROOT_REQUEST_ID request_id;
+	asn1SccROOT_TC_SECONDARY_HEADER secondary_header;
+	bool is_slot_used;
+
+} cfdp_operation;
+
+cfdp_operation receive_operations[MAX_RECEIVE_OPERATIONS];
+cfdp_operation send_operations[MAX_SEND_OPERATIONS];
+
+struct cfdp_core cfd_entity;
 
 uint64_t filestore_get_file_size(const char *filepath);
 
@@ -52,86 +70,147 @@ void cfdp_PI_init(void)
 	transport.transport_send_pdu = transport_send_pdu;
 	transport.transport_is_ready = transport_is_ready;
 
-	struct cfdp_core cfd_entity_sender;
-
-	cfdp_core_init(&cfd_entity_sender, &filestore, &transport, 6,
-		       CHECKSUM_TYPE_MODULAR, 30);
-	cfd_entity_sender.cfdp_core_indication_callback = indication_callback;
-	cfd_entity_sender.cfdp_core_error_callback = error_callback;
+	cfdp_core_init(&cfd_entity, &filestore, &transport, 6,
+		       CHECKSUM_TYPE_MODULAR, 30); // here get config data from user
+	cfd_entity.cfdp_core_indication_callback = indication_callback;
+	cfd_entity.cfdp_core_error_callback = error_callback;
 }
 
 void cfdp_PI_file_handling_copy_operation_id_alredy_allocated( const asn1SccGAMMA_OPERATION_ID * IN_operation_id, asn1SccGAMMA_BOOLEAN *OUT_result )
 {
+	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
+		if(send_operations[i].is_slot_used && send_operations[i].operation_id == *IN_operation_id){
+			*OUT_result = true;
+			return;
+		}
+	}
 
+	*OUT_result = false;
 }
 
 
 void cfdp_PI_file_handling_is_object_path_remote( const asn1SccGAMMA_FILE_PATH *IN_file_path, asn1SccGAMMA_BOOLEAN *OUT_result )
 {
-
+	*OUT_result = true;
 }
 
 
 void cfdp_PI_file_handling_is_object_path_valid( const asn1SccGAMMA_FILE_PATH *IN_file_path, asn1SccGAMMA_BOOLEAN *OUT_result )
 {
-
+	*OUT_result = true;
 }
 
 
 void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccGAMMA_OPERATION_ID *IN_operation_id, const asn1SccGAMMA_FILE_PATH *IN_source_file_path, const asn1SccGAMMA_FILE_PATH *IN_target_file_path, const asn1SccROOT_REQUEST_ID *IN_request_id, const asn1SccROOT_TC_SECONDARY_HEADER *IN_secondary_header )
 {
+	struct transaction_id transaction_id = cfdp_core_put(&cfd_entity, 13, IN_source_file_path->field_data,
+							     IN_target_file_path->field_data);
 
+	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
+		if(!send_operations[i].is_slot_used){
+			send_operations[i].operation_id = *IN_operation_id;
+			send_operations[i].is_slot_used = true;
+			break;
+		}
+	}
 }
 
 uint64_t filestore_get_file_size(const char *filepath)
 {
-	return 0;
+	asn1SccGAMMA_FILE_PATH cfpd_filepath;
+	strcpy(cfpd_filepath.field_data, filepath);
+
+	asn1SccGAMMA_CFDP_SIZE cfdp_size;
+
+	cfdp_RI_get_file_size(&cfpd_filepath, &cfdp_size);
+	return (uint64_t)cfdp_size;
 }
 
 void filestore_read_file(const char *filepath, uint32_t offset, char *data,
 			 const uint32_t length)
 {
+	asn1SccGAMMA_FILE_PATH cfpd_filepath;
+	strcpy(cfpd_filepath.field_data, filepath);
 
+	asn1SccGAMMA_CFDP_OFFSET cfdp_offset = offset;
+	asn1SccGAMMA_CFDP_DATA cfdp_data;
+	cfdp_data.field_data.nCount = 0;
+	memset(cfdp_data.field_data.arr, 0, asn1SccGAMMA_CFDP_DATA_REQUIRED_BYTES_FOR_ENCODING - 2);
+
+	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
+
+	cfdp_RI_read_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
+
+	memcpy(data, cfdp_data.field_data.arr, length);
 }
 
 void filestore_write_to_file(const char *filepath, uint32_t offset,
 			     const char *data, const uint32_t length)
 {
+	asn1SccGAMMA_FILE_PATH cfpd_filepath;
+	strcpy(cfpd_filepath.field_data, filepath);
 
+	asn1SccGAMMA_CFDP_OFFSET cfdp_offset = offset;
+	asn1SccGAMMA_CFDP_DATA cfdp_data;
+	cfdp_data.field_data.nCount = length;
+	memcpy(cfdp_data.field_data.arr, data, length);
+
+	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
+	cfdp_RI_write_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
 }
 
 uint32_t filestore_calculate_checksum(const char *filepath,
 				      const enum ChecksumType checksum_type)
 {
-	return 0;
+	asn1SccGAMMA_FILE_PATH cfpd_filepath;
+	strcpy(cfpd_filepath.field_data, filepath);
+
+	asn1SccGAMMA_CFDP_CHECKSUM_TYPE cfdp_checksum_type = (asn1SccGAMMA_CFDP_CHECKSUM_TYPE)checksum_type;
+
+	asn1SccGAMMA_CFDP_CHECKSUM cfdp_checksum;
+
+	cfdp_RI_calculate_checksum(&cfpd_filepath, &cfdp_checksum_type, &cfdp_checksum);
+	return (uint32_t)cfdp_checksum;
 }
 
 void filestore_copy_file(const char *src_path, const char *dest_path)
 {
-
 }
 
 void transport_send_pdu(const byte pdu[], const int size)
 {
+	asn1SccGAMMA_CFDP_DATA cfdp_data;
+	cfdp_data.field_data.nCount = size;
+	memcpy(cfdp_data.field_data.arr, pdu, size);
 
+	cfdp_RI_send_pdu(&cfdp_data);
 }
 
 bool transport_is_ready()
 {
-	return true;
+	asn1SccGAMMA_BOOLEAN result;
+	cfdp_RI_is_ready(&result);
+	return result;
 }
 
 void indication_callback(struct cfdp_core *core,
 			 const enum IndicationType indication_type,
 			 const struct transaction_id transaction_id)
 {
+	asn1SccGAMMA_CFDP_INDICATION_TYPE cfdp_indication_type = indication_type;
+	asn1SccGAMMA_CFDP_TRANSACTION_ID cfdp_transaction_id;
+	cfdp_transaction_id.source_entity_id = transaction_id.source_entity_id;
+	cfdp_transaction_id.seq_number = transaction_id.seq_number;
 
+	cfdp_RI_indication_callback(&cfdp_indication_type, &cfdp_transaction_id);
 }
 
 void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 		    const uint32_t error_code)
 {
-
+	asn1SccGAMMA_CFDP_ERROR_TYPE cfdp_error_type = error_type;
+	asn1SccGAMMA_CFDP_ERROR_CODE cfdp_error_code = error_code;
+	cfdp_RI_error_callback(&cfdp_error_type, &cfdp_error_code);
 }
 
 

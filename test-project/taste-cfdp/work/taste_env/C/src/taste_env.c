@@ -38,7 +38,8 @@ void taste_env_PI_error_callback
 
 
 void taste_env_PI_get_file_size
-      (asn1SccGAMMA_CFDP_SIZE *OUT_size)
+      ( const asn1SccGAMMA_FILE_PATH *IN_file_path,
+        asn1SccGAMMA_CFDP_SIZE *OUT_size)
 
 {
    // Write your code here

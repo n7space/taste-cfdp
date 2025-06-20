@@ -41,7 +41,7 @@ extern void cfdp_RI_error_callback( const asn1SccGAMMA_CFDP_ERROR_TYPE *, const 
 extern void cfdp_RI_file_handling_copy_file_operation_respond( const asn1SccGAMMA_OPERATION_ID *, const asn1SccROOT_REQUEST_ID *, const asn1SccROOT_TC_SECONDARY_HEADER *, asn1SccGAMMA_BOOLEAN * );
 
 
-extern void cfdp_RI_get_file_size( asn1SccGAMMA_CFDP_SIZE * );
+extern void cfdp_RI_get_file_size( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_CFDP_SIZE * );
 
 
 extern void cfdp_RI_indication_callback( const asn1SccGAMMA_CFDP_INDICATION_TYPE *, const asn1SccGAMMA_CFDP_TRANSACTION_ID * );
