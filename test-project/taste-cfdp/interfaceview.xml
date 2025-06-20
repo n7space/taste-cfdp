@@ -1,0 +1,276 @@
+<InterfaceView version="1.3" asn1file="taste-cfdp.acn" UiFile="interfaceview.ui.xml" modifierHash="dccc37158">
+<Function id="{8c35b4e9-ef42-495b-b864-403204b0f0cf}" name="taste_env" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_max="1" instances_min="1" startup_priority="1">
+    <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
+<Provided_Interface id="{923a8581-8f13-4ad7-baf6-f6d615fad27f}" name="send_pdu" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="pdu_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{fe0ebfcb-0388-4567-bc7a-64e543113ae4}" name="is_ready" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{49c1be16-67c2-47f8-911d-fde117b28bed}" name="get_file_size" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Output_Parameter name="size" type="GAMMA-CFDP-SIZE" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{f07d0e5e-bc10-42ac-835b-731eda162633}" name="read_file" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="offset" type="GAMMA-CFDP-OFFSET" encoding="NATIVE"/>
+    <Output_Parameter name="read_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="size" type="GAMMA-CFDP-SIZE" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{1aa2c45e-688d-4af9-819d-49c87f3a8070}" name="write_file" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="offset" type="GAMMA-CFDP-OFFSET" encoding="NATIVE"/>
+    <Input_Parameter name="write_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="size" type="GAMMA-CFDP-SIZE" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{720dbbe3-7460-4b29-a14f-820849940a84}" name="calculate_checksum" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="checksum_type" type="GAMMA-CFDP-CHECKSUM-TYPE" encoding="NATIVE"/>
+    <Output_Parameter name="checksum" type="GAMMA-CFDP-CHECKSUM" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{042a4411-fb4a-4640-a908-e605e6050285}" name="indication_callback" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="indication_type" type="GAMMA-CFDP-INDICATION-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="transaction_id" type="GAMMA-CFDP-TRANSACTION-ID" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{c07c28b4-a131-4699-a8fc-06913209ab7d}" name="error_callback" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="error_type" type="GAMMA-CFDP-ERROR-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="error_code" type="GAMMA-CFDP-ERROR-CODE" encoding="NATIVE"/>
+</Provided_Interface>
+
+    <Implementations>
+        <Implementation name="default" language="C"/>
+    </Implementations>
+</Function>
+
+<Function id="{e91870e6-0c97-44cc-9b63-ae263bec8185}" name="cfdp" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_max="1" instances_min="1" startup_priority="1">
+    <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
+<Provided_Interface id="{7f4a162f-3105-40aa-9e10-94b7f735f8ea}" name="file_handling_is_object_path_valid" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{2b011509-79e3-4d50-afaf-a3dc4550c9ba}" name="file_handling_copy_operation_id_alredy_allocated" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{49d230f7-ba48-47a7-8a68-53f6238c4a05}" name="file_handling_is_object_path_remote" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{ea8b5e0f-18b7-40c7-b5ad-9b7e34ebe623}" name="file_handling_request_copy_file_operation" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
+    <Input_Parameter name="source_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="target_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
+    <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{15f06e88-d6a1-451c-b80c-ec4f7da6726f}" name="init" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+</Provided_Interface>
+
+<Required_Interface id="{ff1b6eca-49f2-4620-8c96-7dfd1fcb182d}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0" is_alarm="false" is_observable="false">
+    <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
+    <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
+    <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{c2514a50-459e-46b2-b255-4d2ac2dcda6f}" name="send_pdu" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="pdu_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{f7a749c5-d27b-491f-a708-0d4c30588f02}" name="is_ready" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{309bd40b-1363-4c37-90d2-5559af8abd48}" name="get_file_size" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Output_Parameter name="size" type="GAMMA-CFDP-SIZE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{6c179310-eb85-4841-8119-f7e90a2df0fb}" name="read_file" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="offset" type="GAMMA-CFDP-OFFSET" encoding="NATIVE"/>
+    <Output_Parameter name="read_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="size" type="GAMMA-CFDP-SIZE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{3886fbfd-3bcf-4635-862e-a02ace699d25}" name="write_file" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="offset" type="GAMMA-CFDP-OFFSET" encoding="NATIVE"/>
+    <Input_Parameter name="write_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="size" type="GAMMA-CFDP-SIZE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{3a50137e-a2a6-4c41-8010-9c140e9b7d09}" name="calculate_checksum" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="checksum_type" type="GAMMA-CFDP-CHECKSUM-TYPE" encoding="NATIVE"/>
+    <Output_Parameter name="checksum" type="GAMMA-CFDP-CHECKSUM" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{9906e15c-6711-4e05-a0f0-5259753227fe}" name="indication_callback" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="indication_type" type="GAMMA-CFDP-INDICATION-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="transaction_id" type="GAMMA-CFDP-TRANSACTION-ID" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{cfb42971-f40e-44e6-aa2c-37593ccf15a0}" name="error_callback" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="error_type" type="GAMMA-CFDP-ERROR-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="error_code" type="GAMMA-CFDP-ERROR-CODE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+    <Implementations>
+        <Implementation name="default" language="C"/>
+    </Implementations>
+</Function>
+
+<Function id="{68c0a7ec-13df-4d0c-aff8-7136f78a2776}" name="test_function" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_max="1" instances_min="1" startup_priority="1">
+    <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
+<Provided_Interface id="{4980f025-ae21-472c-80b5-c495f9fe736b}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0" is_alarm="false" is_observable="false">
+    <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
+    <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
+    <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{cd9bacd7-067c-4498-b79b-58a7b507515a}" name="trigger" kind="Cyclic" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0" period="1000" priority="1" dispatch_offset="0" stack_size="1024">
+</Provided_Interface>
+
+<Required_Interface id="{c4e92dc8-be64-4b2e-a1c9-5886500af3bc}" name="file_handling_request_copy_file_operation" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
+    <Input_Parameter name="source_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="target_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
+    <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{51c1260a-9e4b-4a51-9bc4-7745208a7fd8}" name="file_handling_is_object_path_remote" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{02ec9735-bf15-4f6d-b889-4749e85ecc56}" name="file_handling_copy_operation_id_alredy_allocated" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{2c54a2b0-55b4-475e-888b-6c4924674aed}" name="file_handling_is_object_path_valid" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{5d6f5fb5-9c5f-468f-b3f4-6199dc66e8cb}" name="init" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+    <Implementations>
+        <Implementation name="default" language="C"/>
+    </Implementations>
+</Function>
+
+<Connection id="{87fd8d8a-b4ae-404b-afd0-7954fc54e034}" required_system_element="NO">
+    <Source iface_id="{309bd40b-1363-4c37-90d2-5559af8abd48}" func_name="cfdp" ri_name="get_file_size" />
+    <Target iface_id="{49c1be16-67c2-47f8-911d-fde117b28bed}" func_name="taste_env" pi_name="get_file_size" />
+</Connection>
+
+<Connection id="{f0d4522f-4018-40b2-a863-737facda2209}" required_system_element="NO">
+    <Source iface_id="{9906e15c-6711-4e05-a0f0-5259753227fe}" func_name="cfdp" ri_name="indication_callback" />
+    <Target iface_id="{042a4411-fb4a-4640-a908-e605e6050285}" func_name="taste_env" pi_name="indication_callback" />
+</Connection>
+
+<Connection id="{1d5f3272-8180-41ee-8a07-40d77b54a4e7}" required_system_element="NO">
+    <Source iface_id="{5d6f5fb5-9c5f-468f-b3f4-6199dc66e8cb}" func_name="test_function" ri_name="init" />
+    <Target iface_id="{15f06e88-d6a1-451c-b80c-ec4f7da6726f}" func_name="cfdp" pi_name="init" />
+</Connection>
+
+<Connection id="{6b87a360-1ac5-4d46-8069-b9975b89d153}" required_system_element="NO">
+    <Source iface_id="{3886fbfd-3bcf-4635-862e-a02ace699d25}" func_name="cfdp" ri_name="write_file" />
+    <Target iface_id="{1aa2c45e-688d-4af9-819d-49c87f3a8070}" func_name="taste_env" pi_name="write_file" />
+</Connection>
+
+<Connection id="{ac342071-f79e-4239-943b-f03e7494c92a}" required_system_element="NO">
+    <Source iface_id="{cfb42971-f40e-44e6-aa2c-37593ccf15a0}" func_name="cfdp" ri_name="error_callback" />
+    <Target iface_id="{c07c28b4-a131-4699-a8fc-06913209ab7d}" func_name="taste_env" pi_name="error_callback" />
+</Connection>
+
+<Connection id="{b93cbd6c-7334-4efb-946e-663846840013}" required_system_element="NO">
+    <Source iface_id="{6c179310-eb85-4841-8119-f7e90a2df0fb}" func_name="cfdp" ri_name="read_file" />
+    <Target iface_id="{f07d0e5e-bc10-42ac-835b-731eda162633}" func_name="taste_env" pi_name="read_file" />
+</Connection>
+
+<Connection id="{d5b52525-7b3d-4754-b974-5f4831ee4ddc}" required_system_element="NO">
+    <Source iface_id="{ff1b6eca-49f2-4620-8c96-7dfd1fcb182d}" func_name="cfdp" ri_name="file_handling_copy_file_operation_respond" />
+    <Target iface_id="{4980f025-ae21-472c-80b5-c495f9fe736b}" func_name="test_function" pi_name="file_handling_copy_file_operation_respond" />
+</Connection>
+
+<Connection id="{1c7e2478-3333-4eba-852c-6c0d93a95bc0}" required_system_element="NO">
+    <Source iface_id="{3a50137e-a2a6-4c41-8010-9c140e9b7d09}" func_name="cfdp" ri_name="calculate_checksum" />
+    <Target iface_id="{720dbbe3-7460-4b29-a14f-820849940a84}" func_name="taste_env" pi_name="calculate_checksum" />
+</Connection>
+
+<Connection id="{73ac0ff1-ce8d-4b62-932d-fa5d60da5abe}" required_system_element="NO">
+    <Source iface_id="{51c1260a-9e4b-4a51-9bc4-7745208a7fd8}" func_name="test_function" ri_name="file_handling_is_object_path_remote" />
+    <Target iface_id="{49d230f7-ba48-47a7-8a68-53f6238c4a05}" func_name="cfdp" pi_name="file_handling_is_object_path_remote" />
+</Connection>
+
+<Connection id="{d4793a8e-5329-463f-9a1d-5adbfad9c164}" required_system_element="NO">
+    <Source iface_id="{c2514a50-459e-46b2-b255-4d2ac2dcda6f}" func_name="cfdp" ri_name="send_pdu" />
+    <Target iface_id="{923a8581-8f13-4ad7-baf6-f6d615fad27f}" func_name="taste_env" pi_name="send_pdu" />
+</Connection>
+
+<Connection id="{325f7207-8bb9-4f68-a678-24d38ab419c3}" required_system_element="NO">
+    <Source iface_id="{2c54a2b0-55b4-475e-888b-6c4924674aed}" func_name="test_function" ri_name="file_handling_is_object_path_valid" />
+    <Target iface_id="{7f4a162f-3105-40aa-9e10-94b7f735f8ea}" func_name="cfdp" pi_name="file_handling_is_object_path_valid" />
+</Connection>
+
+<Connection id="{6681fcf7-134e-463c-861b-db6fd3b415fd}" required_system_element="NO">
+    <Source iface_id="{02ec9735-bf15-4f6d-b889-4749e85ecc56}" func_name="test_function" ri_name="file_handling_copy_operation_id_alredy_allocated" />
+    <Target iface_id="{2b011509-79e3-4d50-afaf-a3dc4550c9ba}" func_name="cfdp" pi_name="file_handling_copy_operation_id_alredy_allocated" />
+</Connection>
+
+<Connection id="{a4ca08d2-1216-4d40-9cc3-8a9d62b72de6}" required_system_element="NO">
+    <Source iface_id="{c4e92dc8-be64-4b2e-a1c9-5886500af3bc}" func_name="test_function" ri_name="file_handling_request_copy_file_operation" />
+    <Target iface_id="{ea8b5e0f-18b7-40c7-b5ad-9b7e34ebe623}" func_name="cfdp" pi_name="file_handling_request_copy_file_operation" />
+</Connection>
+
+<Connection id="{0f240774-937d-420a-ba91-dada45ff316a}" required_system_element="NO">
+    <Source iface_id="{f7a749c5-d27b-491f-a708-0d4c30588f02}" func_name="cfdp" ri_name="is_ready" />
+    <Target iface_id="{fe0ebfcb-0388-4567-bc7a-64e543113ae4}" func_name="taste_env" pi_name="is_ready" />
+</Connection>
+
+<Layer name="default" is_visible="true"/>
+
+</InterfaceView>
