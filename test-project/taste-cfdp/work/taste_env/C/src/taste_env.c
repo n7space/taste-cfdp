@@ -8,14 +8,89 @@
     !! file. The up-to-date signatures can be found in the header file. !!
 */
 #include "taste_env.h"
-//#include <stdio.h>
+#include <arpa/inet.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <errno.h>
+#include <pthread.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
+#define PORT 5111
+#define RECEIVER_PORT 5222
+#define BUFFER_SIZE 8192
+
+static const char IP_ADDRESS[] = "127.0.0.1";
+static int sockfd;
+
+static void *receiver_thread(void *arg)
+{
+	uint8_t buffer[BUFFER_SIZE];
+	memset(buffer, 0x0, (size_t)BUFFER_SIZE);
+	struct sockaddr_in client_addr;
+	socklen_t addr_len = sizeof(client_addr);
+
+	while (1) {
+		int bytes_received = recvfrom(sockfd, buffer, BUFFER_SIZE - 1, 0,
+				 (struct sockaddr *)&client_addr, &addr_len);
+		if (bytes_received > 0 || bytes_received > BUFFER_SIZE) {
+			buffer[bytes_received] = '\0';
+		} else {
+			perror("recvfrom failed\n");
+			continue;
+		}
+
+		asn1SccGAMMA_CFDP_DATA pdu_data;
+		memcpy(pdu_data.field_data.arr, buffer, bytes_received);
+		pdu_data.field_data.nCount = bytes_received;
+
+		taste_env_RI_received_pdu(&pdu_data);
+	}
+
+	return NULL;
+}
 
 void taste_env_startup(void)
 {
-   // Write your initialisation code
-   // You may call sporadic required interfaces and start timers
-   // puts ("[taste_env] Startup");
+}
+
+void taste_env_PI_init_and_bind()
+{
+	struct sockaddr_in server_addr;
+
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (sockfd < 0) {
+		perror("socket creation failed\n");
+		exit(EXIT_FAILURE);
+	}
+
+	memset(&server_addr, 0, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+	server_addr.sin_port = htons(PORT);
+
+	if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) <
+	    0) {
+		perror("bind failed\n");
+		close(sockfd);
+		exit(EXIT_FAILURE);
+	}
+
+	pthread_t thread_id;
+	if (pthread_create(&thread_id, NULL, receiver_thread,
+			   NULL) != 0) {
+		perror("pthread_create failed\n");
+		close(sockfd);
+		exit(EXIT_FAILURE);
+	}
+}
+
+void taste_env_PI_close_and_unbind()
+{
+	 close(sockfd);
 }
 
 void taste_env_PI_calculate_checksum
@@ -24,7 +99,44 @@ void taste_env_PI_calculate_checksum
        asn1SccGAMMA_CFDP_CHECKSUM *OUT_checksum)
 
 {
-   // Write your code here
+	if (*IN_checksum_type != asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular) {
+		*OUT_checksum = 0;
+		return;
+	}
+
+	FILE *file = fopen(IN_file_path->field_data, "rb");
+	if (file == NULL) {
+		printf("Error: Could not open file %s\n", IN_file_path->field_data);
+		return;
+	}
+
+	fseek(file, 0, SEEK_END);
+	long file_size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+
+	uint32_t checksum = 0;
+	uint8_t buffer[4];
+	long x = 0;
+
+	while (x < file_size) {
+		size_t bytes_to_read = 4;
+		if (x > file_size - 4) {
+			bytes_to_read = file_size % 4;
+		}
+
+		fseek(file, x, SEEK_SET);
+		size_t read_bytes = fread(buffer, 1, bytes_to_read, file);
+		uint32_t value = 0;
+
+		for (size_t i = 0; i < read_bytes; ++i) {
+			value |= (uint32_t)buffer[i] << ((3 - i) * 8);
+		}
+
+		checksum += value;
+		x += 4;
+	}
+
+	*OUT_checksum = checksum;
 }
 
 
@@ -33,7 +145,7 @@ void taste_env_PI_error_callback
        const asn1SccGAMMA_CFDP_ERROR_CODE *IN_error_code)
 
 {
-   // Write your code here
+	printf("cfdp error type=%ld error_code = %ld\n", *IN_error_type, *IN_error_code);
 }
 
 
@@ -42,7 +154,15 @@ void taste_env_PI_get_file_size
         asn1SccGAMMA_CFDP_SIZE *OUT_size)
 
 {
-   // Write your code here
+	FILE *file = fopen(IN_file_path->field_data, "rb");
+	if (file == NULL) {
+		printf("Error: Could not open file %s\n", IN_file_path->field_data);
+		return;
+	}
+
+	fseek(file, 0, SEEK_END);
+	*OUT_size = ftell(file);
+	fclose(file);
 }
 
 
@@ -51,7 +171,10 @@ void taste_env_PI_indication_callback
        const asn1SccGAMMA_CFDP_TRANSACTION_ID *IN_transaction_id)
 
 {
-   // Write your code here
+   printf("cfdp indication type=%ld source_entity_id = %lu seq_number = "
+	       "%lu\n",
+	       *IN_indication_type, IN_transaction_id->source_entity_id,
+	       IN_transaction_id->seq_number);
 }
 
 
@@ -59,7 +182,7 @@ void taste_env_PI_is_ready
       (asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
-   // Write your code here
+   *OUT_result = true;
 }
 
 
@@ -70,17 +193,22 @@ void taste_env_PI_read_file
        const asn1SccGAMMA_CFDP_SIZE *IN_size)
 
 {
-   // Write your code here
+	FILE *file = fopen(IN_file_path->field_data, "rb");
+	if (file == NULL) {
+		printf("Error: Could not open file %s\n", IN_file_path->field_data);
+		return;
+	}
+
+	fseek(file, *IN_offset, SEEK_SET);
+	if (fread(OUT_read_data->field_data.arr, sizeof(byte), *IN_size, file) != *IN_size) {
+		printf("Error: Bad read\n");
+		fclose(file);
+		return;
+	}
+   OUT_read_data->field_data.nCount = *IN_size;
+
+	fclose(file);
 }
-
-
-void taste_env_PI_send_pdu
-      (const asn1SccGAMMA_CFDP_DATA *IN_pdu_data)
-
-{
-   // Write your code here
-}
-
 
 void taste_env_PI_write_file
       (const asn1SccGAMMA_FILE_PATH *IN_file_path,
@@ -89,7 +217,43 @@ void taste_env_PI_write_file
        const asn1SccGAMMA_CFDP_SIZE *IN_size)
 
 {
-   // Write your code here
+	FILE *file = fopen(IN_file_path->field_data, "a");
+	if (file == NULL) {
+		printf("Error: Could not open file %s\n", IN_file_path->field_data);
+		return;
+	}
+
+	fseek(file, *IN_offset, SEEK_SET);
+	if (fwrite(IN_write_data->field_data.arr, sizeof(byte), *IN_size, file) != *IN_size) {
+		printf("Error: Bad write\n");
+		fclose(file);
+		return;
+	}
+
+	fclose(file);
 }
+
+void taste_env_PI_send_pdu
+      (const asn1SccGAMMA_CFDP_DATA *IN_pdu_data)
+
+{
+	struct sockaddr_in receiver_addr;
+	memset(&receiver_addr, 0, sizeof(receiver_addr));
+	receiver_addr.sin_family = AF_INET;
+	receiver_addr.sin_addr.s_addr = inet_addr(IP_ADDRESS);
+	receiver_addr.sin_port = htons(RECEIVER_PORT);
+
+	int bytes_sent =
+	    sendto(sockfd, IN_pdu_data->field_data.arr, IN_pdu_data->field_data.nCount, 0, (struct sockaddr *)&receiver_addr,
+		   sizeof(receiver_addr));
+	if (bytes_sent == -1) {
+		int errsv = errno;
+		printf("socket send error %d\n", errsv);
+	}
+	printf("socket bytes sent %d\n", bytes_sent);
+}
+
+
+
 
 

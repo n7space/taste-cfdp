@@ -8,14 +8,105 @@
     !! file. The up-to-date signatures can be found in the header file. !!
 */
 #include "test_function.h"
-//#include <stdio.h>
+#include <stdio.h>
+#include <unistd.h>
+#include "string.h"
+
+static bool file_exists(const char *fname)
+{
+	FILE *file;
+	if ((file = fopen(fname, "r"))) {
+		fclose(file);
+		return true;
+	}
+	return false;
+}
+
+static int compare_files(const char *file1, const char *file2)
+{
+	FILE *fp1 = fopen(file1, "rb");
+	FILE *fp2 = fopen(file2, "rb");
+
+	if (!fp1 || !fp2) {
+		if (fp1)
+			fclose(fp1);
+		if (fp2)
+			fclose(fp2);
+		return -1;
+	}
+
+	int result = 0;
+	int ch1, ch2;
+
+	while (1) {
+		ch1 = fgetc(fp1);
+		ch2 = fgetc(fp2);
+
+		if (ch1 != ch2) {
+			result = 1;
+			break;
+		}
+
+		if (ch1 == EOF || ch2 == EOF)
+			break;
+	}
+
+	if (ch1 != ch2)
+		result = 1;
+
+	fclose(fp1);
+	fclose(fp2);
+	return result;
+}
 
 
 void test_function_startup(void)
 {
-   // Write your initialisation code
-   // You may call sporadic required interfaces and start timers
-   // puts ("[test_function] Startup");
+}
+
+void test_function_PI_trigger(void)
+{
+	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
+	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
+	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
+
+	test_function_RI_init(&entity_id, &checksum_type, &inactivity_time);
+
+	const asn1SccGAMMA_OPERATION_ID operation_id = 10;
+	asn1SccGAMMA_BOOLEAN result;
+
+	test_function_RI_file_handling_copy_operation_id_alredy_allocated(&operation_id, &result);
+
+	if(result){
+		printf("TEST FAILED\n");
+		exit(EXIT_FAILURE);
+	}
+
+	asn1SccGAMMA_FILE_PATH source_file_path;
+	strcpy(source_file_path.field_data, "source_file.txt");
+	asn1SccGAMMA_FILE_PATH target_file_path;
+	strcpy(target_file_path.field_data, "13:target_file.txt");
+	asn1SccROOT_REQUEST_ID request_id;
+	asn1SccROOT_TC_SECONDARY_HEADER secondary_header;
+	request_id.packet_id.application_process_id = 17;
+
+	test_function_RI_file_handling_request_copy_file_operation(&operation_id, &source_file_path, &target_file_path, &request_id, &secondary_header);
+
+	sleep(2);
+	test_function_RI_close();
+
+	if (!file_exists("target_file.txt")) {
+		printf("TEST FAILED\n");
+	    exit(EXIT_FAILURE);
+	}
+
+	if (compare_files("source_file.txt","target_file.txt") != 0) {
+		printf("TEST FAILED\n");
+	    exit(EXIT_FAILURE);
+	}
+
+	printf("TEST PASSED\n");
+	exit(EXIT_SUCCESS);
 }
 
 void test_function_PI_file_handling_copy_file_operation_respond
@@ -25,13 +116,6 @@ void test_function_PI_file_handling_copy_file_operation_respond
        asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
-   // Write your code here
-}
-
-
-void test_function_PI_trigger(void)
-{
-   // Write your code here
 }
 
 

@@ -17,22 +17,25 @@ extern "C" {
 void cfdp_startup(void);
 
 /* Provided interfaces */
+void cfdp_PI_close( void );
+
+
 void cfdp_PI_file_handling_copy_operation_id_alredy_allocated( const asn1SccGAMMA_OPERATION_ID *, asn1SccGAMMA_BOOLEAN * );
-
-
-void cfdp_PI_file_handling_is_object_path_remote( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_BOOLEAN * );
-
-
-void cfdp_PI_file_handling_is_object_path_valid( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_BOOLEAN * );
 
 
 void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccGAMMA_OPERATION_ID *, const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_FILE_PATH *, const asn1SccROOT_REQUEST_ID *, const asn1SccROOT_TC_SECONDARY_HEADER * );
 
 
-void cfdp_PI_init( void );
+void cfdp_PI_init( const asn1SccGAMMA_CFDP_CONFIG_DATA *, const asn1SccGAMMA_CFDP_CHECKSUM_TYPE *, const asn1SccGAMMA_CFDP_CONFIG_DATA * );
+
+
+void cfdp_PI_received_pdu( const asn1SccGAMMA_CFDP_DATA * );
 
 /* Required interfaces */
 extern void cfdp_RI_calculate_checksum( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_CHECKSUM_TYPE *, asn1SccGAMMA_CFDP_CHECKSUM * );
+
+
+extern void cfdp_RI_close_and_unbind( void );
 
 
 extern void cfdp_RI_error_callback( const asn1SccGAMMA_CFDP_ERROR_TYPE *, const asn1SccGAMMA_CFDP_ERROR_CODE * );
@@ -45,6 +48,9 @@ extern void cfdp_RI_get_file_size( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_
 
 
 extern void cfdp_RI_indication_callback( const asn1SccGAMMA_CFDP_INDICATION_TYPE *, const asn1SccGAMMA_CFDP_TRANSACTION_ID * );
+
+
+extern void cfdp_RI_init_and_bind( void );
 
 
 extern void cfdp_RI_is_ready( asn1SccGAMMA_BOOLEAN * );

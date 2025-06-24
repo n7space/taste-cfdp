@@ -23,9 +23,19 @@ DISTFILES=$(shell qmake taste-cfdp.pro -o /tmp/null 2>&1)
 # enumeration change, but this does not affect the content of DataView.aadl
 ASN1_FILES=$(shell find ${DISTFILES} 2>/dev/null | egrep '\.asn$$|\.asn1$$' | grep -v system.asn)
 
+CFDP_PYTHON_RECEIVER := python_cfdp_receiver.py
+CFDP_PYTHON_RECEIVER_PID := script.pid
+
 all:	release
 
 include Makefile.modelcheck
+
+test: all
+	chmod +x $(CFDP_PYTHON_RECEIVER)
+	python3 $(CFDP_PYTHON_RECEIVER) & echo $$! > $(CFDP_PYTHON_RECEIVER_PID)
+	sleep 1
+	./work/binaries/demo
+	sleep 1
 
 release:	work/glue_release
 	rm -rf work/glue_debug
