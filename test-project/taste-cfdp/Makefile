@@ -24,18 +24,27 @@ DISTFILES=$(shell qmake taste-cfdp.pro -o /tmp/null 2>&1)
 ASN1_FILES=$(shell find ${DISTFILES} 2>/dev/null | egrep '\.asn$$|\.asn1$$' | grep -v system.asn)
 
 CFDP_PYTHON_RECEIVER := python_cfdp_receiver.py
+CFDP_PYTHON_SENDER := python_cfdp_sender.py
 CFDP_PYTHON_RECEIVER_PID := script.pid
 
 all:	release
 
 include Makefile.modelcheck
 
-test: all
+test: all test-file-send
+	
+test-file-send:
 	chmod +x $(CFDP_PYTHON_RECEIVER)
 	python3 $(CFDP_PYTHON_RECEIVER) & echo $$! > $(CFDP_PYTHON_RECEIVER_PID)
 	sleep 1
-	./work/binaries/demo
+	./work/binaries/demo &
+	sleep 4
+	-pkill python3
+	chmod +x $(CFDP_PYTHON_SENDER)
+	python3 $(CFDP_PYTHON_SENDER)
 	sleep 1
+	-pkill python3
+	-pkill demo
 
 release:	work/glue_release
 	rm -rf work/glue_debug

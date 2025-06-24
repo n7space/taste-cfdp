@@ -30,11 +30,14 @@ void receiver_machine_close(struct receiver_machine *receiver_machine)
 void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 				   struct event *event, const cfdpCfdpPDU *pdu)
 {
+	printf("DEBUG6\n");
 	receiver_timer_restart(&receiver_machine->timer);
 
 	if (receiver_machine->state == WAIT_FOR_MD) {
+		printf("DEBUG7\n");
 		switch (event->type) {
 		case E0_ENTERED_STATE: {
+			
 			receiver_machine_init(receiver_machine,
 					      event->transaction);
 			receiver_timer_restart(&receiver_machine->timer);

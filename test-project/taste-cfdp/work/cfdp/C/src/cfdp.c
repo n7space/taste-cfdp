@@ -51,6 +51,11 @@ void indication_callback(struct cfdp_core *core,
 void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 		    const uint32_t error_code);
 
+void test_timer_restart(const int timeout,
+			void expired(struct receiver_timer *));
+
+void test_timer_stop();
+
 
 void cfdp_startup(void)
 {
@@ -75,6 +80,8 @@ void cfdp_PI_init(const asn1SccGAMMA_CFDP_CONFIG_DATA *IN_entity_id,
 		       *IN_checksum_type, *IN_inactivity_time);
 	cfd_entity.cfdp_core_indication_callback = indication_callback;
 	cfd_entity.cfdp_core_error_callback = error_callback;
+	cfd_entity.receiver[0].timer.timer_restart = test_timer_restart;
+	cfd_entity.receiver[0].timer.timer_stop = test_timer_stop;
 
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		send_operations[i].is_slot_used = false;
@@ -132,6 +139,7 @@ void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccGAMMA_OPERA
 
 void cfdp_PI_received_pdu( const asn1SccGAMMA_CFDP_DATA * IN_pdu_data)
 {
+	printf("DEBUG1\n");
 	cfdp_core_received_pdu(&cfd_entity, IN_pdu_data->field_data.arr, IN_pdu_data->field_data.nCount);
 }
 
@@ -247,6 +255,18 @@ void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 	asn1SccGAMMA_CFDP_ERROR_TYPE cfdp_error_type = error_type;
 	asn1SccGAMMA_CFDP_ERROR_CODE cfdp_error_code = error_code;
 	cfdp_RI_error_callback(&cfdp_error_type, &cfdp_error_code);
+}
+
+void test_timer_restart(const int timeout,
+			void expired(struct receiver_timer *))
+{
+	const asn1SccGAMMA_CFDP_CONFIG_DATA timer_timeout = timeout;
+	cfdp_RI_timer_restart(&timer_timeout);
+}
+
+void test_timer_stop()
+{
+	cfdp_RI_timer_stop();
 }
 
 

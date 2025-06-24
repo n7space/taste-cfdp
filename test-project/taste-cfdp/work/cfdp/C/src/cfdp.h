@@ -62,6 +62,12 @@ extern void cfdp_RI_read_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMM
 extern void cfdp_RI_send_pdu( const asn1SccGAMMA_CFDP_DATA * );
 
 
+extern void cfdp_RI_timer_restart( const asn1SccGAMMA_CFDP_CONFIG_DATA * );
+
+
+extern void cfdp_RI_timer_stop( void );
+
+
 extern void cfdp_RI_write_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_OFFSET *, const asn1SccGAMMA_CFDP_DATA *, const asn1SccGAMMA_CFDP_SIZE * );
 
 

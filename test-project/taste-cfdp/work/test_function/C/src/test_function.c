@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include "string.h"
 
+bool is_done = false;
+
 static bool file_exists(const char *fname)
 {
 	FILE *file;
@@ -66,6 +68,10 @@ void test_function_startup(void)
 
 void test_function_PI_trigger(void)
 {
+    if(is_done){
+        return;
+    }
+
 	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
 	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
 	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
@@ -85,7 +91,7 @@ void test_function_PI_trigger(void)
 	asn1SccGAMMA_FILE_PATH source_file_path;
 	strcpy(source_file_path.field_data, "source_file.txt");
 	asn1SccGAMMA_FILE_PATH target_file_path;
-	strcpy(target_file_path.field_data, "13:target_file.txt");
+	strcpy(target_file_path.field_data, "13:sent_target_file.txt");
 	asn1SccROOT_REQUEST_ID request_id;
 	asn1SccROOT_TC_SECONDARY_HEADER secondary_header;
 	request_id.packet_id.application_process_id = 17;
@@ -95,18 +101,18 @@ void test_function_PI_trigger(void)
 	sleep(2);
 	test_function_RI_close();
 
-	if (!file_exists("target_file.txt")) {
+	if (!file_exists("sent_target_file.txt")) {
 		printf("TEST FAILED\n");
 	    exit(EXIT_FAILURE);
 	}
 
-	if (compare_files("source_file.txt","target_file.txt") != 0) {
+	if (compare_files("source_file.txt", "sent_target_file.txt") != 0) {
 		printf("TEST FAILED\n");
 	    exit(EXIT_FAILURE);
 	}
 
-	printf("TEST PASSED\n");
-	exit(EXIT_SUCCESS);
+    printf("SEND FILE TEST PASSED\n");
+    is_done = true;
 }
 
 void test_function_PI_file_handling_copy_file_operation_respond
