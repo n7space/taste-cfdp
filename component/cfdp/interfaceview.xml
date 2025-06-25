@@ -1,0 +1,164 @@
+<InterfaceView version="1.2">
+<Function id="{3b51b09f-0377-49a8-a40c-567b663e71d6}" name="cfdp" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_min="1" startup_priority="1" instances_max="1">
+    <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
+<Provided_Interface id="{972ec337-c85e-422a-928a-b8c244845e07}" name="file_handling_copy_operation_id_alredy_allocated" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="operation_id" type="APP-MARKER-OPERATION-ID" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="APP-MARKER-BOOLEAN" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{3c183979-38e9-4992-8769-a9795296a50d}" name="file_handling_request_copy_file_operation" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="operation_id" type="APP-MARKER-OPERATION-ID" encoding="NATIVE"/>
+    <Input_Parameter name="source_object_path" type="APP-MARKER-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="target_object_path" type="APP-MARKER-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
+    <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{bdd40a1f-df1a-496e-a240-a280446ae720}" name="init" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="entity_id" type="APP-MARKER-CFDP-CONFIG-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="checksum_type" type="APP-MARKER-CFDP-CHECKSUM-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="inactivity_time" type="APP-MARKER-CFDP-CONFIG-DATA" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{0826a818-7043-4319-9907-323c4df31221}" name="received_pdu" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="dpdudata" type="APP-MARKER-CFDP-DATA" encoding="NATIVE"/>
+</Provided_Interface>
+
+<Provided_Interface id="{bab572e5-be85-40a4-b9c6-a8e1de5da95a}" name="close" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+</Provided_Interface>
+
+<Required_Interface id="{d114ef42-5d9d-4be9-be04-0ea17a51231d}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" is_alarm="false" is_observable="false" wcet="0">
+    <Input_Parameter name="operation_id" type="APP-MARKER-OPERATION-ID" encoding="NATIVE"/>
+    <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
+    <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
+    <Output_Parameter name="result" type="APP-MARKER-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{122f09a4-2be4-4bd5-b9ed-4a4b2a337934}" name="send_pdu" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="pdu_data" type="APP-MARKER-CFDP-DATA" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{71b397f6-212c-44da-b4c5-2d423d0e0f11}" name="is_ready" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Output_Parameter name="result" type="APP-MARKER-BOOLEAN" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{bf40dd0b-7682-46d4-8911-693110d7e933}" name="get_file_size" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="filepath" type="APP-MARKER-FILE-PATH" encoding="NATIVE"/>
+    <Output_Parameter name="size" type="APP-MARKER-CFDP-SIZE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{64703326-38d3-44ee-9d86-6527b783aa1e}" name="read_file" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="APP-MARKER-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="offset" type="APP-MARKER-CFDP-OFFSET" encoding="NATIVE"/>
+    <Output_Parameter name="read_data" type="APP-MARKER-CFDP-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="size" type="APP-MARKER-CFDP-SIZE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{afe9dc09-1e51-4d26-bf1c-c1edb0abc8f4}" name="write_file" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="APP-MARKER-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="offset" type="APP-MARKER-CFDP-OFFSET" encoding="NATIVE"/>
+    <Input_Parameter name="write_data" type="APP-MARKER-CFDP-DATA" encoding="NATIVE"/>
+    <Input_Parameter name="size" type="APP-MARKER-CFDP-SIZE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{091556aa-97bd-4235-a6c8-9dbf25069c8f}" name="calculate_checksum" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="file_path" type="APP-MARKER-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="checksum_type" type="APP-MARKER-CFDP-CHECKSUM-TYPE" encoding="NATIVE"/>
+    <Output_Parameter name="checksum" type="APP-MARKER-CFDP-CHECKSUM" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{fd18f7e2-9d61-450c-ac52-b8d71903f6d9}" name="indication_callback" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="indication_type" type="APP-MARKER-CFDP-INDICATION-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="transaction_id" type="APP-MARKER-CFDP-TRANSACTION-ID" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{3724370b-1d02-4f56-9b25-2f3273e88072}" name="error_callback" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="error_type" type="APP-MARKER-CFDP-ERROR-TYPE" encoding="NATIVE"/>
+    <Input_Parameter name="error_code" type="APP-MARKER-CFDP-ERROR-CODE" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{aed30e58-1660-41ec-8509-e53b3281ebe0}" name="init_and_bind" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{a5dfffe3-9517-4b63-9658-f0799ad9a73b}" name="close_and_unbind" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{188316ff-856f-429c-a4fa-e9524deaddcf}" name="timer_restart" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Input_Parameter name="timeout" type="APP-MARKER-CFDP-CONFIG-DATA" encoding="NATIVE"/>
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+<Required_Interface id="{abbe90ef-5eea-41be-ad09-4097a0c0513f}" name="timer_stop" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
+    <Property name="Taste::InheritPI" value="true"/>
+    <Property name="Taste::Autonamed" value="true"/>
+</Required_Interface>
+
+    <Implementations>
+        <Implementation name="default" language="C"/>
+    </Implementations>
+</Function>
+<UI version="1.0" ><Entity id="{3b51b09f-0377-49a8-a40c-567b663e71d6}"><Taste coordinates="28000 26000 48000 79000">
+</Taste>
+</Entity><Entity id="{972ec337-c85e-422a-928a-b8c244845e07}"><Taste coordinates="28000 37000">
+</Taste>
+</Entity><Entity id="{3c183979-38e9-4992-8769-a9795296a50d}"><Taste coordinates="28000 41000">
+</Taste>
+</Entity><Entity id="{bdd40a1f-df1a-496e-a240-a280446ae720}"><Taste coordinates="28000 32000">
+</Taste>
+</Entity><Entity id="{0826a818-7043-4319-9907-323c4df31221}"><Taste coordinates="48000 64900">
+</Taste>
+</Entity><Entity id="{bab572e5-be85-40a4-b9c6-a8e1de5da95a}"><Taste coordinates="28000 50000">
+</Taste>
+</Entity><Entity id="{d114ef42-5d9d-4be9-be04-0ea17a51231d}"><Taste coordinates="28000 46000">
+</Taste>
+</Entity><Entity id="{122f09a4-2be4-4bd5-b9ed-4a4b2a337934}"><Taste coordinates="48000 33000">
+</Taste>
+</Entity><Entity id="{71b397f6-212c-44da-b4c5-2d423d0e0f11}"><Taste coordinates="48000 37000">
+</Taste>
+</Entity><Entity id="{bf40dd0b-7682-46d4-8911-693110d7e933}"><Taste coordinates="48000 41000">
+</Taste>
+</Entity><Entity id="{64703326-38d3-44ee-9d86-6527b783aa1e}"><Taste coordinates="48000 45000">
+</Taste>
+</Entity><Entity id="{afe9dc09-1e51-4d26-bf1c-c1edb0abc8f4}"><Taste coordinates="48000 49000">
+</Taste>
+</Entity><Entity id="{091556aa-97bd-4235-a6c8-9dbf25069c8f}"><Taste coordinates="48000 53000">
+</Taste>
+</Entity><Entity id="{fd18f7e2-9d61-450c-ac52-b8d71903f6d9}"><Taste coordinates="48000 57000">
+</Taste>
+</Entity><Entity id="{3724370b-1d02-4f56-9b25-2f3273e88072}"><Taste coordinates="48000 61000">
+</Taste>
+</Entity><Entity id="{aed30e58-1660-41ec-8509-e53b3281ebe0}"><Taste coordinates="48000 29000">
+</Taste>
+</Entity><Entity id="{a5dfffe3-9517-4b63-9658-f0799ad9a73b}"><Taste coordinates="48000 69000">
+</Taste>
+</Entity><Entity id="{188316ff-856f-429c-a4fa-e9524deaddcf}"><Taste coordinates="48000 73000">
+</Taste>
+</Entity><Entity id="{abbe90ef-5eea-41be-ad09-4097a0c0513f}"><Taste coordinates="48000 77000">
+</Taste>
+</Entity>
+</UI>
+
+</InterfaceView>
