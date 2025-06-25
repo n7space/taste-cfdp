@@ -321,8 +321,6 @@ static struct event create_event_for_delivery(struct cfdp_core *core,
 {
 	enum EventType type = E50_NOOP;
 
-	printf("DEBUG2\n");
-
 	if (pdu->payload.kind == PayloadData_file_data_PRESENT) {
 		type = E11_RECEIVED_FILEDATA;
 	} else {
@@ -346,7 +344,6 @@ static struct event create_event_for_delivery(struct cfdp_core *core,
 			}
 			break;
 		case FileDirectivePDU_metadata_pdu_PRESENT:
-			printf("DEBUG3\n");
 			type = E10_RECEIVED_METADATA;
 			break;
 		default:
@@ -383,7 +380,6 @@ static void deliver_pdu_to_receiver_machine(struct cfdp_core *core,
 static void handle_pdu_to_new_receiver_machine(struct cfdp_core *core,
 					       const cfdpCfdpPDU *pdu)
 {
-	printf("DEBUG3\n");
 	if (pdu->pdu_header.direction == cfdpDirection_toward_sender) {
 		// Class 2 specific PDU unsupported
 		// See CCSDS 720.2-G-3, Chapter 5.4, Table 5-5
@@ -403,8 +399,6 @@ static void handle_pdu_to_new_receiver_machine(struct cfdp_core *core,
 		core->cfdp_core_error_callback(core, UNSUPPORTED_ACTION, 0);
 		return;
 	}
-
-	printf("DEBUG4\n");
 
 	struct transaction transaction;
 	transaction.core = core;
@@ -444,7 +438,6 @@ static void handle_pdu_to_new_receiver_machine(struct cfdp_core *core,
 
 	struct event event = {.transaction = transaction,
 			      .type = E0_ENTERED_STATE};
-	printf("DEBUG5\n");
 	receiver_machine_update_state(&core->receiver[0], &event, pdu);
 	deliver_pdu_to_receiver_machine(core, pdu);
 }
@@ -499,7 +492,6 @@ void cfdp_core_received_pdu(struct cfdp_core *core, unsigned char *buf,
 			return;
 		}
 	}
-	printf("DEBUG2\n");
 	handle_pdu_to_new_receiver_machine(core, &pdu);
 }
 

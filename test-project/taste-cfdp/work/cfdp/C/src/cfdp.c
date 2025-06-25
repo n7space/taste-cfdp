@@ -139,7 +139,6 @@ void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccGAMMA_OPERA
 
 void cfdp_PI_received_pdu( const asn1SccGAMMA_CFDP_DATA * IN_pdu_data)
 {
-	printf("DEBUG1\n");
 	cfdp_core_received_pdu(&cfd_entity, IN_pdu_data->field_data.arr, IN_pdu_data->field_data.nCount);
 }
 

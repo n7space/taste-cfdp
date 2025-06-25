@@ -12,8 +12,6 @@
 #include <unistd.h>
 #include "string.h"
 
-bool is_done = false;
-
 static bool file_exists(const char *fname)
 {
 	FILE *file;
@@ -68,10 +66,6 @@ void test_function_startup(void)
 
 void test_function_PI_trigger(void)
 {
-    if(is_done){
-        return;
-    }
-
 	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
 	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
 	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
@@ -112,7 +106,7 @@ void test_function_PI_trigger(void)
 	}
 
     printf("SEND FILE TEST PASSED\n");
-    is_done = true;
+	exit(EXIT_SUCCESS);
 }
 
 void test_function_PI_file_handling_copy_file_operation_respond

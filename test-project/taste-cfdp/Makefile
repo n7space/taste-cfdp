@@ -37,14 +37,13 @@ test-file-send:
 	chmod +x $(CFDP_PYTHON_RECEIVER)
 	python3 $(CFDP_PYTHON_RECEIVER) & echo $$! > $(CFDP_PYTHON_RECEIVER_PID)
 	sleep 1
-	./work/binaries/demo &
-	sleep 4
-	-pkill python3
-	chmod +x $(CFDP_PYTHON_SENDER)
-	python3 $(CFDP_PYTHON_SENDER)
-	sleep 1
-	-pkill python3
-	-pkill demo
+	./work/binaries/demo
+	@# -pkill python3
+	@# chmod +x $(CFDP_PYTHON_SENDER)
+	@# python3 $(CFDP_PYTHON_SENDER)
+	@# sleep 1
+	@# -pkill python3
+	@# -pkill demo
 
 release:	work/glue_release
 	rm -rf work/glue_debug

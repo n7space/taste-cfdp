@@ -36,7 +36,7 @@ static void *receiver_thread(void *arg)
 	while (1) {
 		int bytes_received = recvfrom(sockfd, buffer, BUFFER_SIZE - 1, 0,
 				 (struct sockaddr *)&client_addr, &addr_len);
-		if (bytes_received > 0 || bytes_received > BUFFER_SIZE) {
+		if (bytes_received > 0) {
 			buffer[bytes_received] = '\0';
 		} else {
 			perror("recvfrom failed\n");
