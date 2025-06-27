@@ -31,19 +31,23 @@ all:	release
 
 include Makefile.modelcheck
 
-test: all test-file-send
+test: debug test-file-send test-file-receive
 	
 test-file-send:
+	rm -f sent_target_file.txt
+	rm -f received_target_file.txt
 	chmod +x $(CFDP_PYTHON_RECEIVER)
-	python3 $(CFDP_PYTHON_RECEIVER) & echo $$! > $(CFDP_PYTHON_RECEIVER_PID)
-	sleep 1
+	python3 $(CFDP_PYTHON_RECEIVER) &
+	@sleep 1
 	./work/binaries/demo
-	@# -pkill python3
-	@# chmod +x $(CFDP_PYTHON_SENDER)
-	@# python3 $(CFDP_PYTHON_SENDER)
-	@# sleep 1
-	@# -pkill python3
-	@# -pkill demo
+
+test-file-receive:
+	./work/binaries/demo &
+	@-pkill python3
+	chmod +x $(CFDP_PYTHON_SENDER)
+	python3 $(CFDP_PYTHON_SENDER)
+	@sleep 1
+	@-pkill demo
 
 release:	work/glue_release
 	rm -rf work/glue_debug

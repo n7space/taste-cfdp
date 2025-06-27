@@ -108,21 +108,10 @@ void cfdp_PI_file_handling_copy_operation_id_alredy_allocated( const asn1SccAPP_
 }
 
 
-void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION_ID *IN_operation_id, const asn1SccAPP_MARKER_FILE_PATH *IN_source_file_path, const asn1SccAPP_MARKER_FILE_PATH *IN_target_file_path, const asn1SccROOT_REQUEST_ID *IN_request_id, const asn1SccROOT_TC_SECONDARY_HEADER *IN_secondary_header )
+void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION_ID *IN_operation_id, const asn1SccAPP_MARKER_FILE_PATH *IN_source_file_path, const asn1SccAPP_MARKER_CFDP_CONFIG_DATA *IN_destination_id, const asn1SccAPP_MARKER_FILE_PATH *IN_target_file_path, const asn1SccROOT_REQUEST_ID *IN_request_id, const asn1SccROOT_TC_SECONDARY_HEADER *IN_secondary_header )
 {
-	int destination_entity_id;
-	if (sscanf(IN_target_file_path->field_data, "%d:", &destination_entity_id) != 1) {
-		asn1SccAPP_MARKER_CFDP_ERROR_TYPE cfdp_error_type = 3;
-		asn1SccAPP_MARKER_CFDP_ERROR_CODE cfdp_error_code = 0;
-		cfdp_RI_error_callback(&cfdp_error_type, &cfdp_error_code);
-		return;
-	}
-
-	char *after_colon = strchr(IN_target_file_path->field_data, ':');
-	after_colon++; // go past ':'
-
-	struct transaction_id transaction_id = cfdp_core_put(&cfd_entity, destination_entity_id, IN_source_file_path->field_data,
-							     after_colon);
+	struct transaction_id transaction_id = cfdp_core_put(&cfd_entity, *IN_destination_id, IN_source_file_path->field_data,
+							     IN_target_file_path->field_data);
 
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		if(!send_operations[i].is_slot_used){

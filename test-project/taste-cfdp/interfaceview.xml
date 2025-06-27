@@ -1,19 +1,20 @@
-<InterfaceView version="1.3" asn1file="taste-cfdp.acn" UiFile="interfaceview.ui.xml" modifierHash="dccc37158">
-<Function id="{68c0a7ec-13df-4d0c-aff8-7136f78a2776}" name="test_function" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_max="1" startup_priority="1" instances_min="1">
+<InterfaceView version="1.3" asn1file="taste-cfdp.acn" UiFile="interfaceview.ui.xml" modifierHash="8f9a913">
+<Function id="{68c0a7ec-13df-4d0c-aff8-7136f78a2776}" name="test_function" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_min="1" startup_priority="1" instances_max="1">
     <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
-<Provided_Interface id="{4980f025-ae21-472c-80b5-c495f9fe736b}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" is_alarm="false" is_observable="false" wcet="0">
+<Provided_Interface id="{4980f025-ae21-472c-80b5-c495f9fe736b}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" is_observable="false" wcet="0" is_alarm="false">
     <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
     <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
     <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
     <Output_Parameter name="result" type="GAMMA-BOOLEAN" encoding="NATIVE"/>
 </Provided_Interface>
 
-<Provided_Interface id="{cd9bacd7-067c-4498-b79b-58a7b507515a}" name="trigger" kind="Cyclic" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" stack_size="1024" dispatch_offset="0" period="1000" priority="1" wcet="0">
+<Provided_Interface id="{cd9bacd7-067c-4498-b79b-58a7b507515a}" name="trigger" kind="Cyclic" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" stack_size="1024" priority="1" wcet="0" period="1000" dispatch_offset="0">
 </Provided_Interface>
 
 <Required_Interface id="{c4e92dc8-be64-4b2e-a1c9-5886500af3bc}" name="file_handling_request_copy_file_operation" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
     <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
     <Input_Parameter name="source_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="destinationid" type="GAMMA-CFDP-CONFIG-DATA" encoding="NATIVE"/>
     <Input_Parameter name="target_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
     <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
     <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
@@ -46,7 +47,7 @@
     </Implementations>
 </Function>
 
-<Function id="{e91870e6-0c97-44cc-9b63-ae263bec8185}" name="cfdp" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_max="1" startup_priority="1" instances_min="1">
+<Function id="{e91870e6-0c97-44cc-9b63-ae263bec8185}" name="cfdp" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_min="1" startup_priority="1" instances_max="1">
     <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
 <Provided_Interface id="{2b011509-79e3-4d50-afaf-a3dc4550c9ba}" name="file_handling_copy_operation_id_alredy_allocated" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
     <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
@@ -56,6 +57,7 @@
 <Provided_Interface id="{ea8b5e0f-18b7-40c7-b5ad-9b7e34ebe623}" name="file_handling_request_copy_file_operation" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
     <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
     <Input_Parameter name="source_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
+    <Input_Parameter name="destinationid" type="GAMMA-CFDP-CONFIG-DATA" encoding="NATIVE"/>
     <Input_Parameter name="target_object_path" type="GAMMA-FILE-PATH" encoding="NATIVE"/>
     <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
     <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
@@ -74,7 +76,7 @@
 <Provided_Interface id="{0748a71a-0899-4282-84a6-7d093f3f1c87}" name="close" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
 </Provided_Interface>
 
-<Required_Interface id="{ff1b6eca-49f2-4620-8c96-7dfd1fcb182d}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" is_alarm="false" is_observable="false" wcet="0">
+<Required_Interface id="{ff1b6eca-49f2-4620-8c96-7dfd1fcb182d}" name="file_handling_copy_file_operation_respond" kind="Unprotected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" is_observable="false" wcet="0" is_alarm="false">
     <Input_Parameter name="operation_id" type="GAMMA-OPERATION-ID" encoding="NATIVE"/>
     <Input_Parameter name="request_id" type="ROOT-REQUEST-ID" encoding="NATIVE"/>
     <Input_Parameter name="secondary_header" type="ROOT-TC-SECONDARY-HEADER" encoding="NATIVE"/>
@@ -168,7 +170,7 @@
     </Implementations>
 </Function>
 
-<Function id="{8c35b4e9-ef42-495b-b864-403204b0f0cf}" name="taste_env" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_max="1" startup_priority="1" instances_min="1">
+<Function id="{8c35b4e9-ef42-495b-b864-403204b0f0cf}" name="taste_env" is_type="NO" language="C" default_implementation="default" fixed_system_element="NO" required_system_element="NO" instances_min="1" startup_priority="1" instances_max="1">
     <Property name="TASTE_IV_Properties::Default_Codegen" value="Ada"/>
 <Provided_Interface id="{923a8581-8f13-4ad7-baf6-f6d615fad27f}" name="send_pdu" kind="Protected" enable_multicast="true" layer="default" required_system_element="NO" is_simulink_interface="false" wcet="0">
     <Input_Parameter name="pdu_data" type="GAMMA-CFDP-DATA" encoding="NATIVE"/>
@@ -237,69 +239,9 @@
     </Implementations>
 </Function>
 
-<Connection id="{6681fcf7-134e-463c-861b-db6fd3b415fd}" required_system_element="NO">
-    <Source iface_id="{02ec9735-bf15-4f6d-b889-4749e85ecc56}" func_name="test_function" ri_name="file_handling_copy_operation_id_alredy_allocated" />
-    <Target iface_id="{2b011509-79e3-4d50-afaf-a3dc4550c9ba}" func_name="cfdp" pi_name="file_handling_copy_operation_id_alredy_allocated" />
-</Connection>
-
-<Connection id="{4d04eb8a-a47c-4caf-8731-fddb1736c781}" name="cfdp_init_and_bind____taste_env_init_and_bind" required_system_element="NO">
-    <Source iface_id="{75be77f7-5578-4783-bcff-ad723f67e3d9}" func_name="cfdp" ri_name="init_and_bind" />
-    <Target iface_id="{2b48d5a0-225d-4fe6-ba28-4bd4b0c71acc}" func_name="taste_env" pi_name="init_and_bind" />
-</Connection>
-
-<Connection id="{0f240774-937d-420a-ba91-dada45ff316a}" required_system_element="NO">
-    <Source iface_id="{f7a749c5-d27b-491f-a708-0d4c30588f02}" func_name="cfdp" ri_name="is_ready" />
-    <Target iface_id="{fe0ebfcb-0388-4567-bc7a-64e543113ae4}" func_name="taste_env" pi_name="is_ready" />
-</Connection>
-
-<Connection id="{a4ca08d2-1216-4d40-9cc3-8a9d62b72de6}" required_system_element="NO">
-    <Source iface_id="{c4e92dc8-be64-4b2e-a1c9-5886500af3bc}" func_name="test_function" ri_name="file_handling_request_copy_file_operation" />
-    <Target iface_id="{ea8b5e0f-18b7-40c7-b5ad-9b7e34ebe623}" func_name="cfdp" pi_name="file_handling_request_copy_file_operation" />
-</Connection>
-
-<Connection id="{59589d32-09e2-443f-b65b-3279901e5090}" name="cfdp_close_and_unbind____taste_env_close_and_unbind" required_system_element="NO">
-    <Source iface_id="{ed2a667f-3c5b-4be8-89b3-10f096495832}" func_name="cfdp" ri_name="close_and_unbind" />
-    <Target iface_id="{6c887997-32c8-4c81-95aa-00fbf6547477}" func_name="taste_env" pi_name="close_and_unbind" />
-</Connection>
-
-<Connection id="{ae3f92b3-9ffc-48ae-ba65-b7c0100334bd}" name="cfdp_timer_stop____taste_env_timer_stop" required_system_element="NO">
-    <Source iface_id="{811b9926-dc5f-4c48-b36a-79cf70bcc432}" func_name="cfdp" ri_name="timer_stop" />
-    <Target iface_id="{045b7e47-86a2-4429-9bf7-15963bae04b4}" func_name="taste_env" pi_name="timer_stop" />
-</Connection>
-
-<Connection id="{d5b52525-7b3d-4754-b974-5f4831ee4ddc}" required_system_element="NO">
-    <Source iface_id="{ff1b6eca-49f2-4620-8c96-7dfd1fcb182d}" func_name="cfdp" ri_name="file_handling_copy_file_operation_respond" />
-    <Target iface_id="{4980f025-ae21-472c-80b5-c495f9fe736b}" func_name="test_function" pi_name="file_handling_copy_file_operation_respond" />
-</Connection>
-
-<Connection id="{1c7e2478-3333-4eba-852c-6c0d93a95bc0}" required_system_element="NO">
-    <Source iface_id="{3a50137e-a2a6-4c41-8010-9c140e9b7d09}" func_name="cfdp" ri_name="calculate_checksum" />
-    <Target iface_id="{720dbbe3-7460-4b29-a14f-820849940a84}" func_name="taste_env" pi_name="calculate_checksum" />
-</Connection>
-
-<Connection id="{3c382240-ead4-42a7-8494-15e2a4c8dfec}" name="cfdp_timer_restart____taste_env_timer_restart" required_system_element="NO">
-    <Source iface_id="{1f81044e-d932-4089-9cbb-503a1ce2c780}" func_name="cfdp" ri_name="timer_restart" />
-    <Target iface_id="{c0262a04-c2c4-40d2-9488-1c9c507cfdb2}" func_name="taste_env" pi_name="timer_restart" />
-</Connection>
-
-<Connection id="{d4793a8e-5329-463f-9a1d-5adbfad9c164}" required_system_element="NO">
-    <Source iface_id="{c2514a50-459e-46b2-b255-4d2ac2dcda6f}" func_name="cfdp" ri_name="send_pdu" />
-    <Target iface_id="{923a8581-8f13-4ad7-baf6-f6d615fad27f}" func_name="taste_env" pi_name="send_pdu" />
-</Connection>
-
-<Connection id="{754dc5d5-9015-49bc-8a65-bde06ce115bf}" name="taste_env_received_pdu____cfdp_received_pdu" required_system_element="NO">
-    <Source iface_id="{3540b59b-c005-4007-8e6c-c16ae63318e4}" func_name="taste_env" ri_name="received_pdu" />
-    <Target iface_id="{f01075f2-c084-4815-891f-73d35b42aa66}" func_name="cfdp" pi_name="received_pdu" />
-</Connection>
-
 <Connection id="{6b87a360-1ac5-4d46-8069-b9975b89d153}" required_system_element="NO">
     <Source iface_id="{3886fbfd-3bcf-4635-862e-a02ace699d25}" func_name="cfdp" ri_name="write_file" />
     <Target iface_id="{1aa2c45e-688d-4af9-819d-49c87f3a8070}" func_name="taste_env" pi_name="write_file" />
-</Connection>
-
-<Connection id="{ac342071-f79e-4239-943b-f03e7494c92a}" required_system_element="NO">
-    <Source iface_id="{cfb42971-f40e-44e6-aa2c-37593ccf15a0}" func_name="cfdp" ri_name="error_callback" />
-    <Target iface_id="{c07c28b4-a131-4699-a8fc-06913209ab7d}" func_name="taste_env" pi_name="error_callback" />
 </Connection>
 
 <Connection id="{b93cbd6c-7334-4efb-946e-663846840013}" required_system_element="NO">
@@ -310,6 +252,11 @@
 <Connection id="{76f23364-cbd9-4ad9-885f-c6acede78567}" name="test_function_close____cfdp_close" required_system_element="NO">
     <Source iface_id="{7e990dbd-2f11-4824-9455-850d11cd30db}" func_name="test_function" ri_name="close" />
     <Target iface_id="{0748a71a-0899-4282-84a6-7d093f3f1c87}" func_name="cfdp" pi_name="close" />
+</Connection>
+
+<Connection id="{ac342071-f79e-4239-943b-f03e7494c92a}" required_system_element="NO">
+    <Source iface_id="{cfb42971-f40e-44e6-aa2c-37593ccf15a0}" func_name="cfdp" ri_name="error_callback" />
+    <Target iface_id="{c07c28b4-a131-4699-a8fc-06913209ab7d}" func_name="taste_env" pi_name="error_callback" />
 </Connection>
 
 <Connection id="{1d5f3272-8180-41ee-8a07-40d77b54a4e7}" required_system_element="NO">
@@ -325,6 +272,61 @@
 <Connection id="{87fd8d8a-b4ae-404b-afd0-7954fc54e034}" required_system_element="NO">
     <Source iface_id="{309bd40b-1363-4c37-90d2-5559af8abd48}" func_name="cfdp" ri_name="get_file_size" />
     <Target iface_id="{49c1be16-67c2-47f8-911d-fde117b28bed}" func_name="taste_env" pi_name="get_file_size" />
+</Connection>
+
+<Connection id="{6681fcf7-134e-463c-861b-db6fd3b415fd}" required_system_element="NO">
+    <Source iface_id="{02ec9735-bf15-4f6d-b889-4749e85ecc56}" func_name="test_function" ri_name="file_handling_copy_operation_id_alredy_allocated" />
+    <Target iface_id="{2b011509-79e3-4d50-afaf-a3dc4550c9ba}" func_name="cfdp" pi_name="file_handling_copy_operation_id_alredy_allocated" />
+</Connection>
+
+<Connection id="{4d04eb8a-a47c-4caf-8731-fddb1736c781}" name="cfdp_init_and_bind____taste_env_init_and_bind" required_system_element="NO">
+    <Source iface_id="{75be77f7-5578-4783-bcff-ad723f67e3d9}" func_name="cfdp" ri_name="init_and_bind" />
+    <Target iface_id="{2b48d5a0-225d-4fe6-ba28-4bd4b0c71acc}" func_name="taste_env" pi_name="init_and_bind" />
+</Connection>
+
+<Connection id="{ae3f92b3-9ffc-48ae-ba65-b7c0100334bd}" name="cfdp_timer_stop____taste_env_timer_stop" required_system_element="NO">
+    <Source iface_id="{811b9926-dc5f-4c48-b36a-79cf70bcc432}" func_name="cfdp" ri_name="timer_stop" />
+    <Target iface_id="{045b7e47-86a2-4429-9bf7-15963bae04b4}" func_name="taste_env" pi_name="timer_stop" />
+</Connection>
+
+<Connection id="{0f240774-937d-420a-ba91-dada45ff316a}" required_system_element="NO">
+    <Source iface_id="{f7a749c5-d27b-491f-a708-0d4c30588f02}" func_name="cfdp" ri_name="is_ready" />
+    <Target iface_id="{fe0ebfcb-0388-4567-bc7a-64e543113ae4}" func_name="taste_env" pi_name="is_ready" />
+</Connection>
+
+<Connection id="{59589d32-09e2-443f-b65b-3279901e5090}" name="cfdp_close_and_unbind____taste_env_close_and_unbind" required_system_element="NO">
+    <Source iface_id="{ed2a667f-3c5b-4be8-89b3-10f096495832}" func_name="cfdp" ri_name="close_and_unbind" />
+    <Target iface_id="{6c887997-32c8-4c81-95aa-00fbf6547477}" func_name="taste_env" pi_name="close_and_unbind" />
+</Connection>
+
+<Connection id="{a4ca08d2-1216-4d40-9cc3-8a9d62b72de6}" required_system_element="NO">
+    <Source iface_id="{c4e92dc8-be64-4b2e-a1c9-5886500af3bc}" func_name="test_function" ri_name="file_handling_request_copy_file_operation" />
+    <Target iface_id="{ea8b5e0f-18b7-40c7-b5ad-9b7e34ebe623}" func_name="cfdp" pi_name="file_handling_request_copy_file_operation" />
+</Connection>
+
+<Connection id="{1c7e2478-3333-4eba-852c-6c0d93a95bc0}" required_system_element="NO">
+    <Source iface_id="{3a50137e-a2a6-4c41-8010-9c140e9b7d09}" func_name="cfdp" ri_name="calculate_checksum" />
+    <Target iface_id="{720dbbe3-7460-4b29-a14f-820849940a84}" func_name="taste_env" pi_name="calculate_checksum" />
+</Connection>
+
+<Connection id="{d5b52525-7b3d-4754-b974-5f4831ee4ddc}" required_system_element="NO">
+    <Source iface_id="{ff1b6eca-49f2-4620-8c96-7dfd1fcb182d}" func_name="cfdp" ri_name="file_handling_copy_file_operation_respond" />
+    <Target iface_id="{4980f025-ae21-472c-80b5-c495f9fe736b}" func_name="test_function" pi_name="file_handling_copy_file_operation_respond" />
+</Connection>
+
+<Connection id="{3c382240-ead4-42a7-8494-15e2a4c8dfec}" name="cfdp_timer_restart____taste_env_timer_restart" required_system_element="NO">
+    <Source iface_id="{1f81044e-d932-4089-9cbb-503a1ce2c780}" func_name="cfdp" ri_name="timer_restart" />
+    <Target iface_id="{c0262a04-c2c4-40d2-9488-1c9c507cfdb2}" func_name="taste_env" pi_name="timer_restart" />
+</Connection>
+
+<Connection id="{d4793a8e-5329-463f-9a1d-5adbfad9c164}" required_system_element="NO">
+    <Source iface_id="{c2514a50-459e-46b2-b255-4d2ac2dcda6f}" func_name="cfdp" ri_name="send_pdu" />
+    <Target iface_id="{923a8581-8f13-4ad7-baf6-f6d615fad27f}" func_name="taste_env" pi_name="send_pdu" />
+</Connection>
+
+<Connection id="{754dc5d5-9015-49bc-8a65-bde06ce115bf}" name="taste_env_received_pdu____cfdp_received_pdu" required_system_element="NO">
+    <Source iface_id="{3540b59b-c005-4007-8e6c-c16ae63318e4}" func_name="taste_env" ri_name="received_pdu" />
+    <Target iface_id="{f01075f2-c084-4815-891f-73d35b42aa66}" func_name="cfdp" pi_name="received_pdu" />
 </Connection>
 
 <Layer name="default" is_visible="true"/>

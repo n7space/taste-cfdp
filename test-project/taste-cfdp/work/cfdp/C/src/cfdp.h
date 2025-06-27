@@ -23,7 +23,7 @@ void cfdp_PI_close( void );
 void cfdp_PI_file_handling_copy_operation_id_alredy_allocated( const asn1SccGAMMA_OPERATION_ID *, asn1SccGAMMA_BOOLEAN * );
 
 
-void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccGAMMA_OPERATION_ID *, const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_FILE_PATH *, const asn1SccROOT_REQUEST_ID *, const asn1SccROOT_TC_SECONDARY_HEADER * );
+void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccGAMMA_OPERATION_ID *, const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_CONFIG_DATA *, const asn1SccGAMMA_FILE_PATH *, const asn1SccROOT_REQUEST_ID *, const asn1SccROOT_TC_SECONDARY_HEADER * );
 
 
 void cfdp_PI_init( const asn1SccGAMMA_CFDP_CONFIG_DATA *, const asn1SccGAMMA_CFDP_CHECKSUM_TYPE *, const asn1SccGAMMA_CFDP_CONFIG_DATA * );

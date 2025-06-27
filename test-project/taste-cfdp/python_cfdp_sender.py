@@ -36,7 +36,7 @@ if not filecmp.cmp(source_filename, destination_filename):
     udp_transport.unbind()
     sys.exit(-1)
 
-print("TEST PASSED")
+print("RECEIVE FILE TEST PASSED")
 
 cfdp_entity.shutdown()
 udp_transport.unbind()

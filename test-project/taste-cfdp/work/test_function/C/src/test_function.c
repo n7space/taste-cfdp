@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include "string.h"
 
+static bool is_done = false;
+
 static bool file_exists(const char *fname)
 {
 	FILE *file;
@@ -66,6 +68,19 @@ void test_function_startup(void)
 
 void test_function_PI_trigger(void)
 {
+	if(file_exists("sent_target_file.txt")){
+		if(is_done){
+			return;
+		}
+		const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
+		const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
+		const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
+
+		test_function_RI_init(&entity_id, &checksum_type, &inactivity_time);
+		is_done = true;
+		return;
+	}
+
 	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
 	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
 	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
@@ -84,13 +99,14 @@ void test_function_PI_trigger(void)
 
 	asn1SccGAMMA_FILE_PATH source_file_path;
 	strcpy(source_file_path.field_data, "source_file.txt");
+	asn1SccGAMMA_CFDP_CONFIG_DATA destination_id = 13;
 	asn1SccGAMMA_FILE_PATH target_file_path;
-	strcpy(target_file_path.field_data, "13:sent_target_file.txt");
+	strcpy(target_file_path.field_data, "sent_target_file.txt");
 	asn1SccROOT_REQUEST_ID request_id;
 	asn1SccROOT_TC_SECONDARY_HEADER secondary_header;
 	request_id.packet_id.application_process_id = 17;
 
-	test_function_RI_file_handling_request_copy_file_operation(&operation_id, &source_file_path, &target_file_path, &request_id, &secondary_header);
+	test_function_RI_file_handling_request_copy_file_operation(&operation_id, &source_file_path, &destination_id, &target_file_path, &request_id, &secondary_header);
 
 	sleep(2);
 	test_function_RI_close();
@@ -105,7 +121,7 @@ void test_function_PI_trigger(void)
 	    exit(EXIT_FAILURE);
 	}
 
-    printf("SEND FILE TEST PASSED\n");
+	printf("SEND FILE TEST PASSED\n");
 	exit(EXIT_SUCCESS);
 }
 
