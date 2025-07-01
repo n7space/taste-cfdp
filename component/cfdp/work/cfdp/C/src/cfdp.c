@@ -10,7 +10,6 @@
 #include "cfdp.h"
 #include "cfdp_core.h"
 #include "string.h"
-#include "stdio.h"
 
 #define MAX_RECEIVE_OPERATIONS 1
 #define MAX_SEND_OPERATIONS 1
@@ -18,8 +17,6 @@
 typedef struct {
 	asn1SccAPP_MARKER_OPERATION_ID operation_id;
 	asn1SccAPP_MARKER_CFDP_TRANSACTION_ID transaction_id;
-	asn1SccROOT_REQUEST_ID request_id;
-	asn1SccROOT_TC_SECONDARY_HEADER secondary_header;
 	bool is_slot_used;
 
 } cfdp_operation;
@@ -37,8 +34,6 @@ void filestore_write_to_file(const char *filepath, uint32_t offset,
 
 uint32_t filestore_calculate_checksum(const char *filepath,
 				  const enum ChecksumType checksum_type);
-
-void filestore_copy_file(const char *src_path, const char *dest_path);
 
 void transport_send_pdu(const byte pdu[], const int size);
 
@@ -61,12 +56,11 @@ void cfdp_startup(void)
 {
 }
 
-void cfdp_PI_init(const asn1SccAPP_MARKER_CFDP_CONFIG_DATA *IN_entity_id,
+void cfdp_PI_cfdp_init(const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_entity_id,
 		  const asn1SccAPP_MARKER_CFDP_CHECKSUM_TYPE *IN_checksum_type,
-		  const asn1SccAPP_MARKER_CFDP_CONFIG_DATA *IN_inactivity_time)
+		  const asn1SccAPP_MARKER_CFDP_INACTIVITY_TIMEOUT *IN_inactivity_time)
 {
 	static struct filestore_cfg filestore;
-	filestore.filestore_replace_file = filestore_copy_file;
 	filestore.filestore_get_file_size = filestore_get_file_size;
 	filestore.filestore_read = filestore_read_file;
 	filestore.filestore_write = filestore_write_to_file;
@@ -86,16 +80,9 @@ void cfdp_PI_init(const asn1SccAPP_MARKER_CFDP_CONFIG_DATA *IN_entity_id,
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		send_operations[i].is_slot_used = false;
 	}
-
-	cfdp_RI_init_and_bind();
 }
 
-void cfdp_PI_close()
-{
-	cfdp_RI_close_and_unbind();
-}
-
-void cfdp_PI_file_handling_copy_operation_id_alredy_allocated( const asn1SccAPP_MARKER_OPERATION_ID * IN_operation_id, asn1SccAPP_MARKER_BOOLEAN *OUT_result )
+void cfdp_PI_cfdp_copy_operation_id_alredy_allocated( const asn1SccAPP_MARKER_OPERATION_ID * IN_operation_id, asn1SccAPP_MARKER_BOOLEAN *OUT_result )
 {
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		if(send_operations[i].is_slot_used && send_operations[i].operation_id == *IN_operation_id){
@@ -108,7 +95,7 @@ void cfdp_PI_file_handling_copy_operation_id_alredy_allocated( const asn1SccAPP_
 }
 
 
-void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION_ID *IN_operation_id, const asn1SccAPP_MARKER_FILE_PATH *IN_source_file_path, const asn1SccAPP_MARKER_CFDP_CONFIG_DATA *IN_destination_id, const asn1SccAPP_MARKER_FILE_PATH *IN_target_file_path, const asn1SccROOT_REQUEST_ID *IN_request_id, const asn1SccROOT_TC_SECONDARY_HEADER *IN_secondary_header )
+void cfdp_PI_cfdp_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION_ID *IN_operation_id, const asn1SccAPP_MARKER_FILE_PATH *IN_source_file_path, const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_destination_id, const asn1SccAPP_MARKER_FILE_PATH *IN_target_file_path )
 {
 	struct transaction_id transaction_id = cfdp_core_put(&cfd_entity, *IN_destination_id, IN_source_file_path->field_data,
 							     IN_target_file_path->field_data);
@@ -118,8 +105,6 @@ void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccAPP_MARKER_
 			send_operations[i].operation_id = *IN_operation_id;
 			send_operations[i].transaction_id.source_entity_id = transaction_id.source_entity_id;
 			send_operations[i].transaction_id.seq_number = transaction_id.seq_number;
-			send_operations[i].request_id = *IN_request_id;
-			send_operations[i].secondary_header = *IN_secondary_header;
 			send_operations[i].is_slot_used = true;
 			break;
 		}
@@ -129,6 +114,11 @@ void cfdp_PI_file_handling_request_copy_file_operation( const asn1SccAPP_MARKER_
 void cfdp_PI_received_pdu( const asn1SccAPP_MARKER_CFDP_DATA * IN_pdu_data)
 {
 	cfdp_core_received_pdu(&cfd_entity, IN_pdu_data->field_data.arr, IN_pdu_data->field_data.nCount);
+}
+
+void cfdp_PI_cfdp_transport_is_ready_callback()
+{
+	cfdp_core_transport_is_ready_callback(&cfd_entity);
 }
 
 uint64_t filestore_get_file_size(const char *filepath)
@@ -189,10 +179,6 @@ uint32_t filestore_calculate_checksum(const char *filepath,
 	return (uint32_t)cfdp_checksum;
 }
 
-void filestore_copy_file(const char *src_path, const char *dest_path)
-{
-}
-
 void transport_send_pdu(const byte pdu[], const int size)
 {
 	asn1SccAPP_MARKER_CFDP_DATA cfdp_data;
@@ -219,10 +205,8 @@ void indication_callback(struct cfdp_core *core,
 			   send_operations[i].transaction_id.source_entity_id == transaction_id.source_entity_id &&
 			   send_operations[i].transaction_id.seq_number == transaction_id.seq_number){
 				asn1SccAPP_MARKER_BOOLEAN result = true;
-				cfdp_RI_file_handling_copy_file_operation_respond(&send_operations[i].operation_id,
-										  &send_operations[i].request_id,
-										  &send_operations[i].secondary_header,
-										  &result);
+				cfdp_RI_cfdp_copy_file_operation_respond(&send_operations[i].operation_id,
+									 &result);
 				send_operations[i].is_slot_used = false;
 				break;
 			}
@@ -248,7 +232,7 @@ void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 void test_timer_restart(const int timeout,
 			void expired(struct receiver_timer *))
 {
-	const asn1SccAPP_MARKER_CFDP_CONFIG_DATA timer_timeout = timeout;
+	const asn1SccAPP_MARKER_CFDP_INACTIVITY_TIMEOUT timer_timeout = timeout;
 	cfdp_RI_timer_restart(&timer_timeout);
 }
 
