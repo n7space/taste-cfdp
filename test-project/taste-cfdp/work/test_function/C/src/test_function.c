@@ -133,7 +133,6 @@ void test_function_PI_cfdp_copy_file_operation_respond
        asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
-	printf("SEND FILE REQUEST RESPOND RECEIVED\n");
 }
 
 
