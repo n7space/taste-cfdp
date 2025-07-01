@@ -178,7 +178,7 @@ void taste_env_PI_indication_callback
 }
 
 
-void taste_env_PI_is_ready
+void taste_env_PI_can_send
       (asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {

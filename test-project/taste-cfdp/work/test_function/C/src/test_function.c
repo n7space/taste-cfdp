@@ -96,7 +96,7 @@ void test_function_PI_trigger(void)
 	const asn1SccGAMMA_OPERATION_ID operation_id = 10;
 	asn1SccGAMMA_BOOLEAN result;
 
-	test_function_RI_cfdp_copy_operation_id_alredy_allocated(&operation_id, &result);
+	test_function_RI_cfdp_copy_operation_id_already_allocated(&operation_id, &result);
 
 	if(result){
 		printf("TEST FAILED\n");
