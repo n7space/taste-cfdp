@@ -61,6 +61,16 @@ static int compare_files(const char *file1, const char *file2)
 	return result;
 }
 
+void init_wrapper()
+{
+	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
+	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
+	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
+
+	test_function_RI_cfdp_init(&entity_id, &checksum_type, &inactivity_time);
+	test_function_RI_init_and_bind();
+}
+
 
 void test_function_startup(void)
 {
@@ -68,29 +78,25 @@ void test_function_startup(void)
 
 void test_function_PI_trigger(void)
 {
+	// This part is used during test of file receive, it is executed during second program run
+	// after test of source_file.txt send, test verification is done in python code
 	if(file_exists("sent_target_file.txt")){
 		if(is_done){
 			return;
 		}
-		const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
-		const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
-		const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
-
-		test_function_RI_init(&entity_id, &checksum_type, &inactivity_time);
+	
+		init_wrapper();
 		is_done = true;
 		return;
 	}
 
-	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
-	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
-	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
-
-	test_function_RI_init(&entity_id, &checksum_type, &inactivity_time);
+	// This part is executed initialy, it tests file send
+	init_wrapper();
 
 	const asn1SccGAMMA_OPERATION_ID operation_id = 10;
 	asn1SccGAMMA_BOOLEAN result;
 
-	test_function_RI_file_handling_copy_operation_id_alredy_allocated(&operation_id, &result);
+	test_function_RI_cfdp_copy_operation_id_alredy_allocated(&operation_id, &result);
 
 	if(result){
 		printf("TEST FAILED\n");
@@ -102,14 +108,11 @@ void test_function_PI_trigger(void)
 	asn1SccGAMMA_CFDP_CONFIG_DATA destination_id = 13;
 	asn1SccGAMMA_FILE_PATH target_file_path;
 	strcpy(target_file_path.field_data, "sent_target_file.txt");
-	asn1SccROOT_REQUEST_ID request_id;
-	asn1SccROOT_TC_SECONDARY_HEADER secondary_header;
-	request_id.packet_id.application_process_id = 17;
 
-	test_function_RI_file_handling_request_copy_file_operation(&operation_id, &source_file_path, &destination_id, &target_file_path, &request_id, &secondary_header);
+	test_function_RI_cfdp_request_copy_file_operation(&operation_id, &source_file_path, &destination_id, &target_file_path);
 
 	sleep(2);
-	test_function_RI_close();
+	test_function_RI_close_and_unbind();
 
 	if (!file_exists("sent_target_file.txt")) {
 		printf("TEST FAILED\n");
@@ -125,13 +128,12 @@ void test_function_PI_trigger(void)
 	exit(EXIT_SUCCESS);
 }
 
-void test_function_PI_file_handling_copy_file_operation_respond
+void test_function_PI_cfdp_copy_file_operation_respond
       (const asn1SccGAMMA_OPERATION_ID *IN_operation_id,
-       const asn1SccROOT_REQUEST_ID *IN_request_id,
-       const asn1SccROOT_TC_SECONDARY_HEADER *IN_secondary_header,
        asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
+	printf("SEND FILE REQUEST RESPOND RECEIVED\n");
 }
 
 

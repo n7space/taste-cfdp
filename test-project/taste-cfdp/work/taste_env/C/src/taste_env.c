@@ -253,7 +253,7 @@ void taste_env_PI_send_pdu
 	printf("socket bytes sent %d\n", bytes_sent);
 }
 
-void taste_env_PI_timer_restart(const asn1SccGAMMA_CFDP_CONFIG_DATA * IN_timeout)
+void taste_env_PI_timer_restart(const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT * IN_timeout)
 {
 }
 
