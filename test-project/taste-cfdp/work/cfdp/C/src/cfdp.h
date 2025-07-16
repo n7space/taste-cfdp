@@ -35,9 +35,6 @@ void cfdp_PI_cfdp_request_copy_file_operation( const asn1SccGAMMA_OPERATION_ID *
 void cfdp_PI_received_pdu( const asn1SccGAMMA_CFDP_DATA * );
 
 /* Required interfaces */
-extern void cfdp_RI_calculate_checksum( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_CHECKSUM_TYPE *, asn1SccGAMMA_CFDP_CHECKSUM * );
-
-
 extern void cfdp_RI_can_send( asn1SccGAMMA_BOOLEAN * );
 
 

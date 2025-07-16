@@ -93,52 +93,6 @@ void taste_env_PI_close_and_unbind()
 	 close(sockfd);
 }
 
-void taste_env_PI_calculate_checksum
-      (const asn1SccGAMMA_FILE_PATH *IN_file_path,
-       const asn1SccGAMMA_CFDP_CHECKSUM_TYPE *IN_checksum_type,
-       asn1SccGAMMA_CFDP_CHECKSUM *OUT_checksum)
-
-{
-	if (*IN_checksum_type != asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular) {
-		*OUT_checksum = 0;
-		return;
-	}
-
-	FILE *file = fopen(IN_file_path->field_data, "rb");
-	if (file == NULL) {
-		printf("Error: Could not open file %s\n", IN_file_path->field_data);
-		return;
-	}
-
-	fseek(file, 0, SEEK_END);
-	long file_size = ftell(file);
-	fseek(file, 0, SEEK_SET);
-
-	uint32_t checksum = 0;
-	uint8_t buffer[4];
-	long x = 0;
-
-	while (x < file_size) {
-		size_t bytes_to_read = 4;
-		if (x > file_size - 4) {
-			bytes_to_read = file_size % 4;
-		}
-
-		fseek(file, x, SEEK_SET);
-		size_t read_bytes = fread(buffer, 1, bytes_to_read, file);
-		uint32_t value = 0;
-
-		for (size_t i = 0; i < read_bytes; ++i) {
-			value |= (uint32_t)buffer[i] << ((3 - i) * 8);
-		}
-
-		checksum += value;
-		x += 4;
-	}
-
-	*OUT_checksum = checksum;
-}
-
 
 void taste_env_PI_error_callback
       (const asn1SccGAMMA_CFDP_ERROR_TYPE *IN_error_type,
