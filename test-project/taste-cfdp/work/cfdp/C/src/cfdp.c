@@ -69,7 +69,7 @@ void cfdp_PI_cfdp_init(const asn1SccGAMMA_CFDP_ENTITY_ID *IN_entity_id,
 	filestore.filestore_get_file_size = filestore_get_file_size;
 	filestore.filestore_read = filestore_read_file;
 	filestore.filestore_write = filestore_write_to_file;
-	// filestore dir listing implement
+	filestore.filestore_dump_directory_listing = test_filestore_dump_directory_listing;
 
 	transport.transport_data = NULL;
 	transport.transport_send_pdu = transport_send_pdu;
