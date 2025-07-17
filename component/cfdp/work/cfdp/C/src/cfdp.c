@@ -24,20 +24,21 @@ typedef struct {
 static cfdp_operation send_operations[MAX_SEND_OPERATIONS];
 static struct cfdp_core cfd_entity;
 
-uint64_t filestore_get_file_size(const char *filepath);
+uint64_t filestore_get_file_size(void *filestore_data, const char *filepath);
 
-void filestore_read_file(const char *filepath, uint32_t offset, char *data,
+bool filestore_read_file(void *filestore_data, const char *filepath, uint32_t offset, char *data,
 			      const uint32_t length);
 
-void filestore_write_to_file(const char *filepath, uint32_t offset,
-				  const char *data, const uint32_t length);
+bool filestore_write_to_file(void *filestore_data, const char *filepath,
+				uint32_t offset, const uint8_t *data,
+				const uint32_t length);
 
-uint32_t filestore_calculate_checksum(const char *filepath,
-				  const enum ChecksumType checksum_type);
+bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
+					   uint8_t *listing_data, uint32_t length);
 
-void transport_send_pdu(const byte pdu[], const int size);
+bool transport_send_pdu(void *transport_data, const byte pdu[], const int size);
 
-bool transport_is_ready();
+bool transport_is_ready(void *transport_data);
 
 void indication_callback(struct cfdp_core *core,
 			 const enum IndicationType indication_type,
@@ -46,11 +47,15 @@ void indication_callback(struct cfdp_core *core,
 void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 		    const uint32_t error_code);
 
-void test_timer_restart(const int timeout,
+bool test_timer_restart(void *timer_data, const uint32_t timeout,
 			void expired(struct receiver_timer *));
 
-void test_timer_stop();
+bool test_timer_stop(void *timer_data);
 
+static CFDP_DATA_BUFFER(cfdp_data_buffer);
+static struct filestore_cfg filestore;
+static struct transport transport;
+static struct receiver_timer timer;
 
 void cfdp_startup(void)
 {
@@ -60,22 +65,25 @@ void cfdp_PI_cfdp_init(const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_entity_id,
 		  const asn1SccAPP_MARKER_CFDP_CHECKSUM_TYPE *IN_checksum_type,
 		  const asn1SccAPP_MARKER_CFDP_INACTIVITY_TIMEOUT *IN_inactivity_time)
 {
-	static struct filestore_cfg filestore;
+	filestore.filestore_data = NULL;
 	filestore.filestore_get_file_size = filestore_get_file_size;
 	filestore.filestore_read = filestore_read_file;
 	filestore.filestore_write = filestore_write_to_file;
-	filestore.filestore_calculate_checksum = filestore_calculate_checksum;
+	// filestore dir listing implement
 
-	static struct transport transport;
+	transport.transport_data = NULL;
 	transport.transport_send_pdu = transport_send_pdu;
 	transport.transport_is_ready = transport_is_ready;
 
+	timer.timer_data = NULL;
+	timer.timer_restart = test_timer_restart;
+	timer.timer_stop = test_timer_stop;
+
 	cfdp_core_init(&cfd_entity, &filestore, &transport, *IN_entity_id,
-		       *IN_checksum_type, *IN_inactivity_time);
-	cfd_entity.cfdp_core_indication_callback = indication_callback;
-	cfd_entity.cfdp_core_error_callback = error_callback;
-	cfd_entity.receiver[0].timer.timer_restart = test_timer_restart;
-	cfd_entity.receiver[0].timer.timer_stop = test_timer_stop;
+		       (const enum ChecksumType)*IN_checksum_type, &timer, *IN_inactivity_time, cfdp_data_buffer);
+	cfdp_core_register_indication_callback(&cfd_entity,
+					       indication_callback);
+	cfdp_core_register_error_callback(&cfd_entity, error_callback);
 
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		send_operations[i].is_slot_used = false;
@@ -98,7 +106,7 @@ void cfdp_PI_cfdp_copy_operation_id_already_allocated( const asn1SccAPP_MARKER_O
 void cfdp_PI_cfdp_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION_ID *IN_operation_id, const asn1SccAPP_MARKER_FILE_PATH *IN_source_file_path, const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_destination_id, const asn1SccAPP_MARKER_FILE_PATH *IN_target_file_path )
 {
 	struct transaction_id transaction_id = cfdp_core_put(&cfd_entity, *IN_destination_id, IN_source_file_path->field_data,
-							     IN_target_file_path->field_data);
+							     IN_target_file_path->field_data, 0, NULL);
 
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		if(!send_operations[i].is_slot_used){
@@ -139,7 +147,7 @@ void cfdp_PI_cfdp_close()
 	}
 }
 
-uint64_t filestore_get_file_size(const char *filepath)
+uint64_t filestore_get_file_size(void *filestore_data, const char *filepath)
 {
 	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
 	strcpy(cfpd_filepath.field_data, filepath);
@@ -150,7 +158,7 @@ uint64_t filestore_get_file_size(const char *filepath)
 	return (uint64_t)cfdp_size;
 }
 
-void filestore_read_file(const char *filepath, uint32_t offset, char *data,
+bool filestore_read_file(void *filestore_data, const char *filepath, uint32_t offset, char *data,
 			 const uint32_t length)
 {
 	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
@@ -166,10 +174,13 @@ void filestore_read_file(const char *filepath, uint32_t offset, char *data,
 	cfdp_RI_read_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
 
 	memcpy(data, cfdp_data.field_data.arr, length);
+
+	return true;
 }
 
-void filestore_write_to_file(const char *filepath, uint32_t offset,
-			     const char *data, const uint32_t length)
+bool filestore_write_to_file(void *filestore_data, const char *filepath,
+				uint32_t offset, const uint8_t *data,
+				const uint32_t length)
 {
 	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
 	strcpy(cfpd_filepath.field_data, filepath);
@@ -181,32 +192,38 @@ void filestore_write_to_file(const char *filepath, uint32_t offset,
 
 	asn1SccAPP_MARKER_CFDP_SIZE cfdp_size = length;
 	cfdp_RI_write_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
+
+	return true;
 }
 
-uint32_t filestore_calculate_checksum(const char *filepath,
-				      const enum ChecksumType checksum_type)
+bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
+					   uint8_t *listing_data, uint32_t length)
 {
-	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
-	strcpy(cfpd_filepath.field_data, filepath);
+	asn1SccAPP_MARKER_FILE_PATH cfdp_dir_path;
+	strcpy(cfdp_dir_path.field_data, dirpath);
 
-	asn1SccAPP_MARKER_CFDP_CHECKSUM_TYPE cfdp_checksum_type = (asn1SccAPP_MARKER_CFDP_CHECKSUM_TYPE)checksum_type;
+	asn1SccAPP_MARKER_CFDP_DATA cfdp_listing_data;
+	asn1SccAPP_MARKER_CFDP_SIZE cfdp_size = length;
 
-	asn1SccAPP_MARKER_CFDP_CHECKSUM cfdp_checksum;
+	cfdp_RI_list_directory(&cfdp_dir_path, &cfdp_listing_data, &cfdp_size);
 
-	cfdp_RI_calculate_checksum(&cfpd_filepath, &cfdp_checksum_type, &cfdp_checksum);
-	return (uint32_t)cfdp_checksum;
+	memcpy(listing_data, cfdp_listing_data.field_data.arr, cfdp_listing_data.field_data.nCount);
+
+	return true;
 }
 
-void transport_send_pdu(const byte pdu[], const int size)
+bool transport_send_pdu(void *transport_data, const byte pdu[], const int size)
 {
 	asn1SccAPP_MARKER_CFDP_DATA cfdp_data;
 	cfdp_data.field_data.nCount = size;
 	memcpy(cfdp_data.field_data.arr, pdu, size);
 
 	cfdp_RI_send_pdu(&cfdp_data);
+
+	return true;
 }
 
-bool transport_is_ready()
+bool transport_is_ready(void *transport_data)
 {
 	asn1SccAPP_MARKER_BOOLEAN result;
 	cfdp_RI_can_send(&result);
@@ -247,16 +264,19 @@ void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 	cfdp_RI_error_callback(&cfdp_error_type, &cfdp_error_code);
 }
 
-void test_timer_restart(const int timeout,
+bool test_timer_restart(void *timer_data, const uint32_t timeout,
 			void expired(struct receiver_timer *))
 {
 	const asn1SccAPP_MARKER_CFDP_INACTIVITY_TIMEOUT timer_timeout = timeout;
 	cfdp_RI_timer_restart(&timer_timeout);
+
+	return true;
 }
 
-void test_timer_stop()
+bool test_timer_stop(void *timer_data)
 {
 	cfdp_RI_timer_stop();
+	return true;
 }
 
 

@@ -3,11 +3,32 @@
 
 void receiver_timer_restart(struct receiver_timer *timer)
 {
-	timer->timer_stop();
-	timer->timer_restart(timer->timeout, receiver_timer_expired);
+	if (timer->timer_stop != NULL) {
+		if (!timer->timer_stop(timer->timer_data)) {
+			cfdp_core_issue_error(timer->core,
+							      TIMER_ERROR, 0);
+		}
+	}
+
+	if (timer->timer_restart != NULL) {
+		if (!timer->timer_restart(timer->timer_data,
+					  timer->timeout,
+					  receiver_timer_expired)) {
+			cfdp_core_issue_error(timer->core,
+							      TIMER_ERROR, 0);
+		}
+	}
 }
 
-void receiver_timer_stop(struct receiver_timer *timer) { timer->timer_stop(); }
+void receiver_timer_stop(struct receiver_timer *timer)
+{
+	if (timer->timer_stop != NULL) {
+		if (!timer->timer_stop(timer->timer_data)) {
+			cfdp_core_issue_error(timer->core,
+							      TIMER_ERROR, 0);
+		}
+	}
+}
 
 void receiver_timer_expired(struct receiver_timer *timer)
 {
