@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -185,6 +186,35 @@ void taste_env_PI_write_file
 	}
 
 	fclose(file);
+}
+
+void taste_env_PI_list_directory( const asn1SccGAMMA_FILE_PATH * dir_path, asn1SccGAMMA_CFDP_DATA *listing_data, asn1SccGAMMA_CFDP_SIZE *size)
+{
+	DIR *dir = opendir(dir_path->field_data);
+	if (!dir) {
+		snprintf((char *)listing_data->field_data.arr, *size, "Error opening directory: %s\n", strerror(errno));
+		return;
+	}
+
+	struct dirent *entry;
+	size_t offset = 0;
+
+	while ((entry = readdir(dir)) != NULL) {
+		if (strcmp(entry->d_name, ".") == 0 ||
+		    strcmp(entry->d_name, "..") == 0)
+			continue;
+
+		int written = snprintf((char *)(listing_data->field_data.arr + offset), *size - offset, "%s\n", entry->d_name);
+		if (written < 0 || (size_t)written >= *size - offset) {
+			// Buffer full or error
+			closedir(dir);
+			return;
+		}
+		offset += written;
+	}
+	listing_data->field_data.arr[offset] = '\0';
+	closedir(dir);
+	return;
 }
 
 void taste_env_PI_send_pdu

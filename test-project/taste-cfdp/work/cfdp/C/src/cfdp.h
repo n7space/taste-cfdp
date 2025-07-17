@@ -50,6 +50,9 @@ extern void cfdp_RI_get_file_size( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_
 extern void cfdp_RI_indication_callback( const asn1SccGAMMA_CFDP_INDICATION_TYPE *, const asn1SccGAMMA_CFDP_TRANSACTION_ID * );
 
 
+extern void cfdp_RI_list_directory( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_CFDP_DATA *, asn1SccGAMMA_CFDP_SIZE * );
+
+
 extern void cfdp_RI_read_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_OFFSET *, asn1SccGAMMA_CFDP_DATA *, const asn1SccGAMMA_CFDP_SIZE * );
 
 

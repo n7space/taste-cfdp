@@ -33,8 +33,8 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 				uint32_t offset, const uint8_t *data,
 				const uint32_t length);
 
-uint32_t filestore_calculate_checksum(const char *filepath,
-				  const enum ChecksumType checksum_type);
+bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
+					   uint8_t *listing_data, uint32_t length);
 
 bool transport_send_pdu(void *transport_data, const byte pdu[], const int size);
 
@@ -69,6 +69,7 @@ void cfdp_PI_cfdp_init(const asn1SccGAMMA_CFDP_ENTITY_ID *IN_entity_id,
 	filestore.filestore_get_file_size = filestore_get_file_size;
 	filestore.filestore_read = filestore_read_file;
 	filestore.filestore_write = filestore_write_to_file;
+	// filestore dir listing implement
 
 	transport.transport_data = NULL;
 	transport.transport_send_pdu = transport_send_pdu;
@@ -191,6 +192,22 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 
 	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
 	cfdp_RI_write_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
+
+	return true;
+}
+
+bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
+					   uint8_t *listing_data, uint32_t length)
+{
+	asn1SccGAMMA_FILE_PATH cfdp_dir_path;
+	strcpy(cfdp_dir_path.field_data, dirpath);
+
+	asn1SccGAMMA_CFDP_DATA cfdp_listing_data;
+	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
+
+	cfdp_RI_list_directory(&cfdp_dir_path, &cfdp_listing_data, &cfdp_size);
+
+	memcpy(listing_data, cfdp_listing_data.field_data.arr, cfdp_listing_data.field_data.nCount);
 
 	return true;
 }
