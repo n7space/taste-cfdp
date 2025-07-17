@@ -145,12 +145,14 @@ void taste_env_PI_read_file
       (const asn1SccGAMMA_FILE_PATH *IN_file_path,
        const asn1SccGAMMA_CFDP_OFFSET *IN_offset,
        asn1SccGAMMA_CFDP_DATA *OUT_read_data,
-       const asn1SccGAMMA_CFDP_SIZE *IN_size)
+       const asn1SccGAMMA_CFDP_SIZE *IN_size,
+       asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
 	FILE *file = fopen(IN_file_path->field_data, "rb");
 	if (file == NULL) {
 		printf("Error: Could not open file %s\n", IN_file_path->field_data);
+		*OUT_result = false;
 		return;
 	}
 
@@ -158,23 +160,27 @@ void taste_env_PI_read_file
 	if (fread(OUT_read_data->field_data.arr, sizeof(byte), *IN_size, file) != *IN_size) {
 		printf("Error: Bad read\n");
 		fclose(file);
+		*OUT_result = false;
 		return;
 	}
-   OUT_read_data->field_data.nCount = *IN_size;
+	OUT_read_data->field_data.nCount = *IN_size;
 
 	fclose(file);
+	*OUT_result = true;
 }
 
 void taste_env_PI_write_file
       (const asn1SccGAMMA_FILE_PATH *IN_file_path,
        const asn1SccGAMMA_CFDP_OFFSET *IN_offset,
        const asn1SccGAMMA_CFDP_DATA *IN_write_data,
-       const asn1SccGAMMA_CFDP_SIZE *IN_size)
+       const asn1SccGAMMA_CFDP_SIZE *IN_size,
+       asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
 	FILE *file = fopen(IN_file_path->field_data, "a");
 	if (file == NULL) {
 		printf("Error: Could not open file %s\n", IN_file_path->field_data);
+		*OUT_result = false;
 		return;
 	}
 
@@ -182,17 +188,24 @@ void taste_env_PI_write_file
 	if (fwrite(IN_write_data->field_data.arr, sizeof(byte), *IN_size, file) != *IN_size) {
 		printf("Error: Bad write\n");
 		fclose(file);
+		*OUT_result = false;
 		return;
 	}
 
 	fclose(file);
+	*OUT_result = true;
 }
 
-void taste_env_PI_list_directory( const asn1SccGAMMA_FILE_PATH * dir_path, asn1SccGAMMA_CFDP_DATA *listing_data, asn1SccGAMMA_CFDP_SIZE *size)
+void taste_env_PI_list_directory
+	(const asn1SccGAMMA_FILE_PATH * dir_path,
+	asn1SccGAMMA_CFDP_DATA *listing_data,
+	asn1SccGAMMA_CFDP_SIZE *size,
+	asn1SccGAMMA_BOOLEAN *OUT_result)
 {
 	DIR *dir = opendir(dir_path->field_data);
 	if (!dir) {
 		snprintf((char *)listing_data->field_data.arr, *size, "Error opening directory: %s\n", strerror(errno));
+		*OUT_result = false;
 		return;
 	}
 
@@ -208,17 +221,19 @@ void taste_env_PI_list_directory( const asn1SccGAMMA_FILE_PATH * dir_path, asn1S
 		if (written < 0 || (size_t)written >= *size - offset) {
 			// Buffer full or error
 			closedir(dir);
+			*OUT_result = false;
 			return;
 		}
 		offset += written;
 	}
 	listing_data->field_data.arr[offset] = '\0';
 	closedir(dir);
-	return;
+	*OUT_result = true;
 }
 
 void taste_env_PI_send_pdu
-      (const asn1SccGAMMA_CFDP_DATA *IN_pdu_data)
+      (const asn1SccGAMMA_CFDP_DATA *IN_pdu_data,
+       asn1SccGAMMA_BOOLEAN *OUT_result)
 
 {
 	struct sockaddr_in receiver_addr;
@@ -235,13 +250,18 @@ void taste_env_PI_send_pdu
 		printf("socket send error %d\n", errsv);
 	}
 	printf("socket bytes sent %d\n", bytes_sent);
+	*OUT_result = true;
 }
 
-void taste_env_PI_timer_restart(const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT * IN_timeout)
+void taste_env_PI_timer_restart
+	(const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT * IN_timeout,
+	 asn1SccGAMMA_BOOLEAN *OUT_result)
 {
+	*OUT_result = true;
 }
 
 
-void taste_env_PI_timer_stop()
+void taste_env_PI_timer_stop(asn1SccGAMMA_BOOLEAN *OUT_result)
 {
+	*OUT_result = true;
 }

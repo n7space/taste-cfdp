@@ -50,22 +50,22 @@ extern void cfdp_RI_get_file_size( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_
 extern void cfdp_RI_indication_callback( const asn1SccGAMMA_CFDP_INDICATION_TYPE *, const asn1SccGAMMA_CFDP_TRANSACTION_ID * );
 
 
-extern void cfdp_RI_list_directory( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_CFDP_DATA *, asn1SccGAMMA_CFDP_SIZE * );
+extern void cfdp_RI_list_directory( const asn1SccGAMMA_FILE_PATH *, asn1SccGAMMA_CFDP_DATA *, asn1SccGAMMA_CFDP_SIZE *, asn1SccGAMMA_BOOLEAN * );
 
 
-extern void cfdp_RI_read_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_OFFSET *, asn1SccGAMMA_CFDP_DATA *, const asn1SccGAMMA_CFDP_SIZE * );
+extern void cfdp_RI_read_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_OFFSET *, asn1SccGAMMA_CFDP_DATA *, const asn1SccGAMMA_CFDP_SIZE *, asn1SccGAMMA_BOOLEAN * );
 
 
-extern void cfdp_RI_send_pdu( const asn1SccGAMMA_CFDP_DATA * );
+extern void cfdp_RI_send_pdu( const asn1SccGAMMA_CFDP_DATA *, asn1SccGAMMA_BOOLEAN * );
 
 
-extern void cfdp_RI_timer_restart( const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT * );
+extern void cfdp_RI_timer_restart( const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT *, asn1SccGAMMA_BOOLEAN * );
 
 
-extern void cfdp_RI_timer_stop( void );
+extern void cfdp_RI_timer_stop( asn1SccGAMMA_BOOLEAN * );
 
 
-extern void cfdp_RI_write_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_OFFSET *, const asn1SccGAMMA_CFDP_DATA *, const asn1SccGAMMA_CFDP_SIZE * );
+extern void cfdp_RI_write_file( const asn1SccGAMMA_FILE_PATH *, const asn1SccGAMMA_CFDP_OFFSET *, const asn1SccGAMMA_CFDP_DATA *, const asn1SccGAMMA_CFDP_SIZE *, asn1SccGAMMA_BOOLEAN * );
 
 
 #ifdef __cplusplus

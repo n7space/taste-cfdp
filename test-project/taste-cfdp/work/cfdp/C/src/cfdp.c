@@ -171,10 +171,15 @@ bool filestore_read_file(void *filestore_data, const char *filepath, uint32_t of
 
 	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
 
-	cfdp_RI_read_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
+	asn1SccGAMMA_BOOLEAN result = false;
+
+	cfdp_RI_read_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size, &result);
+
+	if(!result){
+		return false;
+	}
 
 	memcpy(data, cfdp_data.field_data.arr, length);
-
 	return true;
 }
 
@@ -191,9 +196,12 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 	memcpy(cfdp_data.field_data.arr, data, length);
 
 	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
-	cfdp_RI_write_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size);
 
-	return true;
+	asn1SccGAMMA_BOOLEAN result = false;
+
+	cfdp_RI_write_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size, &result);
+
+	return result;
 }
 
 bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
@@ -204,11 +212,15 @@ bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
 
 	asn1SccGAMMA_CFDP_DATA cfdp_listing_data;
 	asn1SccGAMMA_CFDP_SIZE cfdp_size = length;
+	asn1SccGAMMA_BOOLEAN result = false;
 
-	cfdp_RI_list_directory(&cfdp_dir_path, &cfdp_listing_data, &cfdp_size);
+	cfdp_RI_list_directory(&cfdp_dir_path, &cfdp_listing_data, &cfdp_size, &result);
+
+	if(!result){
+		return false;
+	}
 
 	memcpy(listing_data, cfdp_listing_data.field_data.arr, cfdp_listing_data.field_data.nCount);
-
 	return true;
 }
 
@@ -218,9 +230,11 @@ bool transport_send_pdu(void *transport_data, const byte pdu[], const int size)
 	cfdp_data.field_data.nCount = size;
 	memcpy(cfdp_data.field_data.arr, pdu, size);
 
-	cfdp_RI_send_pdu(&cfdp_data);
+	asn1SccGAMMA_BOOLEAN result = false;
 
-	return true;
+	cfdp_RI_send_pdu(&cfdp_data, &result);
+
+	return result;
 }
 
 bool transport_is_ready(void *transport_data)
@@ -268,15 +282,19 @@ bool test_timer_restart(void *timer_data, const uint32_t timeout,
 			void expired(struct receiver_timer *))
 {
 	const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT timer_timeout = timeout;
-	cfdp_RI_timer_restart(&timer_timeout);
+	asn1SccGAMMA_BOOLEAN result = false;
 
-	return true;
+	cfdp_RI_timer_restart(&timer_timeout, &result);
+
+	return result;
 }
 
 bool test_timer_stop(void *timer_data)
 {
-	cfdp_RI_timer_stop();
-	return true;
+	asn1SccGAMMA_BOOLEAN result = false;
+
+	cfdp_RI_timer_stop(&result);
+	return result;
 }
 
 
