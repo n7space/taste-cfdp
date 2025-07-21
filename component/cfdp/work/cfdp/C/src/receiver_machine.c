@@ -2,7 +2,6 @@
 #include "event.h"
 #include "receiver_machine.h"
 #include <assert.h>
-#include <stdio.h>
 
 void receiver_machine_init(struct receiver_machine *receiver_machine,
 			   struct transaction transaction)
@@ -35,7 +34,6 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 	if (receiver_machine->state == WAIT_FOR_MD) {
 		switch (event->type) {
 		case E0_ENTERED_STATE: {
-			
 			receiver_machine_init(receiver_machine,
 					      event->transaction);
 			receiver_timer_restart(&receiver_machine->timer);
@@ -59,6 +57,11 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 			cfdp_core_metadata_received_indication(
 			    receiver_machine->core,
 			    receiver_machine->transaction_id);
+			if (!transaction_process_messages_to_user(
+				&receiver_machine->transaction)) {
+				receiver_machine_close(receiver_machine);
+				return;
+			}
 			receiver_machine->state = WAIT_FOR_EOF;
 			break;
 		}
@@ -106,13 +109,8 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 			break;
 		}
 		default: {
-			if (receiver_machine->core->cfdp_core_error_callback !=
-			    NULL) {
-				receiver_machine->core
-				    ->cfdp_core_error_callback(
-					receiver_machine->core,
-					UNSUPPORTED_ACTION, 0);
-			}
+			cfdp_core_issue_error(receiver_machine->core,
+					      UNSUPPORTED_ACTION, 0);
 		}
 		}
 	} else if (receiver_machine->state == WAIT_FOR_EOF) {
@@ -141,9 +139,13 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 				&receiver_machine->transaction)) {
 				const cfdpFileDataPDU *file_data_pdu =
 				    &(pdu->payload.u.file_data.file_data_pdu);
-				transaction_store_data_to_file(
-				    &receiver_machine->transaction,
-				    file_data_pdu);
+				if (!transaction_store_data_to_file(
+					&receiver_machine->transaction,
+					file_data_pdu)) {
+					receiver_machine_close(
+					    receiver_machine);
+					return;
+				}
 				if (receiver_machine->received_file_size <
 				    file_data_pdu->segment_offset +
 					file_data_pdu->file_data.nCount) {
@@ -184,8 +186,13 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 					    receiver_machine->transaction_id,
 					    DEFAULT_FAULT_HANDLER_ACTIONS
 						[cfdpConditionCode_file_checksum_failure]);
-					transaction_delete_stored_file(
-					    &receiver_machine->transaction);
+					if (!transaction_delete_stored_file(
+						&receiver_machine
+						     ->transaction)) {
+						receiver_machine_close(
+						    receiver_machine);
+						return;
+					}
 					break;
 				}
 			}
@@ -233,13 +240,8 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 			break;
 		}
 		default: {
-			if (receiver_machine->core->cfdp_core_error_callback !=
-			    NULL) {
-				receiver_machine->core
-				    ->cfdp_core_error_callback(
-					receiver_machine->core,
-					UNSUPPORTED_ACTION, 0);
-			}
+			cfdp_core_issue_error(receiver_machine->core,
+					      UNSUPPORTED_ACTION, 0);
 		}
 		}
 	}
