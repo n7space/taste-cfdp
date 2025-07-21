@@ -33,7 +33,7 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 				uint32_t offset, const uint8_t *data,
 				const uint32_t length);
 
-bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
+bool filestore_dump_directory_listing(void *user_data, const char *dirpath,
 					   uint8_t *listing_data, uint32_t length);
 
 bool transport_send_pdu(void *transport_data, const byte pdu[], const int size);
@@ -47,10 +47,10 @@ void indication_callback(struct cfdp_core *core,
 void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 		    const uint32_t error_code);
 
-bool test_timer_restart(void *timer_data, const uint32_t timeout,
+bool timer_restart(void *timer_data, const uint32_t timeout,
 			void expired(struct receiver_timer *));
 
-bool test_timer_stop(void *timer_data);
+bool timer_stop(void *timer_data);
 
 static CFDP_DATA_BUFFER(cfdp_data_buffer);
 static struct filestore_cfg filestore;
@@ -69,15 +69,15 @@ void cfdp_PI_cfdp_init(const asn1SccGAMMA_CFDP_ENTITY_ID *IN_entity_id,
 	filestore.filestore_get_file_size = filestore_get_file_size;
 	filestore.filestore_read = filestore_read_file;
 	filestore.filestore_write = filestore_write_to_file;
-	filestore.filestore_dump_directory_listing = test_filestore_dump_directory_listing;
+	filestore.filestore_dump_directory_listing = filestore_dump_directory_listing;
 
 	transport.transport_data = NULL;
 	transport.transport_send_pdu = transport_send_pdu;
 	transport.transport_is_ready = transport_is_ready;
 
 	timer.timer_data = NULL;
-	timer.timer_restart = test_timer_restart;
-	timer.timer_stop = test_timer_stop;
+	timer.timer_restart = timer_restart;
+	timer.timer_stop = timer_stop;
 
 	cfdp_core_init(&cfd_entity, &filestore, &transport, *IN_entity_id,
 		       (const enum ChecksumType)*IN_checksum_type, &timer, *IN_inactivity_time, cfdp_data_buffer);
@@ -204,7 +204,7 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 	return result;
 }
 
-bool test_filestore_dump_directory_listing(void *user_data, const char *dirpath,
+bool filestore_dump_directory_listing(void *user_data, const char *dirpath,
 					   uint8_t *listing_data, uint32_t length)
 {
 	asn1SccGAMMA_FILE_PATH cfdp_dir_path;
@@ -278,7 +278,7 @@ void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 	cfdp_RI_error_callback(&cfdp_error_type, &cfdp_error_code);
 }
 
-bool test_timer_restart(void *timer_data, const uint32_t timeout,
+bool timer_restart(void *timer_data, const uint32_t timeout,
 			void expired(struct receiver_timer *))
 {
 	const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT timer_timeout = timeout;
@@ -289,7 +289,7 @@ bool test_timer_restart(void *timer_data, const uint32_t timeout,
 	return result;
 }
 
-bool test_timer_stop(void *timer_data)
+bool timer_stop(void *timer_data)
 {
 	asn1SccGAMMA_BOOLEAN result = false;
 
