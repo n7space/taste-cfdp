@@ -63,9 +63,9 @@ static int compare_files(const char *file1, const char *file2)
 
 void init_wrapper()
 {
-	const asn1SccGAMMA_CFDP_CONFIG_DATA entity_id = 6;
-	const asn1SccGAMMA_CFDP_CHECKSUM_TYPE checksum_type = asn1SccGAMMA_CFDP_CHECKSUM_TYPE_modular;
-	const asn1SccGAMMA_CFDP_CONFIG_DATA inactivity_time = 30;
+	const asn1SccCFDP_CONFIG_DATA entity_id = 6;
+	const asn1SccCFDP_CHECKSUM_TYPE checksum_type = asn1SccCFDP_CHECKSUM_TYPE_modular;
+	const asn1SccCFDP_CONFIG_DATA inactivity_time = 30;
 
 	test_function_RI_cfdp_init(&entity_id, &checksum_type, &inactivity_time);
 	test_function_RI_init_and_bind();
@@ -93,8 +93,8 @@ void test_function_PI_trigger(void)
 	// This part is executed initialy, it tests file send
 	init_wrapper();
 
-	const asn1SccGAMMA_OPERATION_ID operation_id = 10;
-	asn1SccGAMMA_BOOLEAN result;
+	const asn1SccCFDP_OPERATION_ID operation_id = 10;
+	asn1SccCFDP_BOOLEAN result;
 
 	test_function_RI_cfdp_copy_operation_id_already_allocated(&operation_id, &result);
 
@@ -103,10 +103,10 @@ void test_function_PI_trigger(void)
 		exit(EXIT_FAILURE);
 	}
 
-	asn1SccGAMMA_FILE_PATH source_file_path;
+	asn1SccCFDP_FILE_PATH source_file_path;
 	strcpy(source_file_path.field_data, "source_file.txt");
-	asn1SccGAMMA_CFDP_CONFIG_DATA destination_id = 13;
-	asn1SccGAMMA_FILE_PATH target_file_path;
+	asn1SccCFDP_CONFIG_DATA destination_id = 13;
+	asn1SccCFDP_FILE_PATH target_file_path;
 	strcpy(target_file_path.field_data, "sent_target_file.txt");
 
 	test_function_RI_cfdp_request_copy_file_operation(&operation_id, &source_file_path, &destination_id, &target_file_path);
@@ -129,8 +129,8 @@ void test_function_PI_trigger(void)
 }
 
 void test_function_PI_cfdp_copy_file_operation_respond
-      (const asn1SccGAMMA_OPERATION_ID *IN_operation_id,
-       asn1SccGAMMA_BOOLEAN *OUT_result)
+      (const asn1SccCFDP_OPERATION_ID *IN_operation_id,
+       asn1SccCFDP_BOOLEAN *OUT_result)
 
 {
 }
