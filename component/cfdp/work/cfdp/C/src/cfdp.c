@@ -15,8 +15,8 @@
 #define MAX_SEND_OPERATIONS 1
 
 typedef struct {
-	asn1SccAPP_MARKER_OPERATION_ID operation_id;
-	asn1SccAPP_MARKER_CFDP_TRANSACTION_ID transaction_id;
+	asn1SccCFDP_OPERATION_ID operation_id;
+	asn1SccCFDP_TRANSACTION_ID transaction_id;
 	bool is_slot_used;
 
 } cfdp_operation;
@@ -61,9 +61,9 @@ void cfdp_startup(void)
 {
 }
 
-void cfdp_PI_cfdp_init(const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_entity_id,
-		  const asn1SccAPP_MARKER_CFDP_CHECKSUM_TYPE *IN_checksum_type,
-		  const asn1SccAPP_MARKER_CFDP_INACTIVITY_TIMEOUT *IN_inactivity_time)
+void cfdp_PI_cfdp_init(const asn1SccCFDP_ENTITY_ID *IN_entity_id,
+		  const asn1SccCFDP_CHECKSUM_TYPE *IN_checksum_type,
+		  const asn1SccCFDP_INACTIVITY_TIMEOUT *IN_inactivity_time)
 {
 	filestore.filestore_data = NULL;
 	filestore.filestore_get_file_size = filestore_get_file_size;
@@ -90,7 +90,7 @@ void cfdp_PI_cfdp_init(const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_entity_id,
 	}
 }
 
-void cfdp_PI_cfdp_copy_operation_id_already_allocated( const asn1SccAPP_MARKER_OPERATION_ID * IN_operation_id, asn1SccAPP_MARKER_BOOLEAN *OUT_result )
+void cfdp_PI_cfdp_copy_operation_id_already_allocated( const asn1SccCFDP_OPERATION_ID * IN_operation_id, asn1SccCFDP_BOOLEAN *OUT_result )
 {
 	for(int i = 0; i < MAX_SEND_OPERATIONS; i++){
 		if(send_operations[i].is_slot_used && send_operations[i].operation_id == *IN_operation_id){
@@ -103,7 +103,7 @@ void cfdp_PI_cfdp_copy_operation_id_already_allocated( const asn1SccAPP_MARKER_O
 }
 
 
-void cfdp_PI_cfdp_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION_ID *IN_operation_id, const asn1SccAPP_MARKER_FILE_PATH *IN_source_file_path, const asn1SccAPP_MARKER_CFDP_ENTITY_ID *IN_destination_id, const asn1SccAPP_MARKER_FILE_PATH *IN_target_file_path )
+void cfdp_PI_cfdp_request_copy_file_operation( const asn1SccCFDP_OPERATION_ID *IN_operation_id, const asn1SccCFDP_FILE_PATH *IN_source_file_path, const asn1SccCFDP_ENTITY_ID *IN_destination_id, const asn1SccCFDP_FILE_PATH *IN_target_file_path )
 {
 	struct transaction_id transaction_id = cfdp_core_put(&cfd_entity, *IN_destination_id, IN_source_file_path->field_data,
 							     IN_target_file_path->field_data, 0, NULL);
@@ -119,7 +119,7 @@ void cfdp_PI_cfdp_request_copy_file_operation( const asn1SccAPP_MARKER_OPERATION
 	}
 }
 
-void cfdp_PI_received_pdu( const asn1SccAPP_MARKER_CFDP_DATA * IN_pdu_data)
+void cfdp_PI_received_pdu( const asn1SccCFDP_DATA * IN_pdu_data)
 {
 	cfdp_core_received_pdu(&cfd_entity, IN_pdu_data->field_data.arr, IN_pdu_data->field_data.nCount);
 }
@@ -149,10 +149,10 @@ void cfdp_PI_cfdp_close()
 
 uint64_t filestore_get_file_size(void *filestore_data, const char *filepath)
 {
-	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
+	asn1SccCFDP_FILE_PATH cfpd_filepath;
 	strcpy(cfpd_filepath.field_data, filepath);
 
-	asn1SccAPP_MARKER_CFDP_SIZE cfdp_size;
+	asn1SccCFDP_SIZE cfdp_size;
 
 	cfdp_RI_get_file_size(&cfpd_filepath, &cfdp_size);
 	return (uint64_t)cfdp_size;
@@ -161,17 +161,17 @@ uint64_t filestore_get_file_size(void *filestore_data, const char *filepath)
 bool filestore_read_file(void *filestore_data, const char *filepath, uint32_t offset, char *data,
 			 const uint32_t length)
 {
-	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
+	asn1SccCFDP_FILE_PATH cfpd_filepath;
 	strcpy(cfpd_filepath.field_data, filepath);
 
-	asn1SccAPP_MARKER_CFDP_OFFSET cfdp_offset = offset;
-	asn1SccAPP_MARKER_CFDP_DATA cfdp_data;
+	asn1SccCFDP_OFFSET cfdp_offset = offset;
+	asn1SccCFDP_DATA cfdp_data;
 	cfdp_data.field_data.nCount = 0;
-	memset(cfdp_data.field_data.arr, 0, asn1SccAPP_MARKER_CFDP_DATA_REQUIRED_BYTES_FOR_ENCODING - 2);
+	memset(cfdp_data.field_data.arr, 0, asn1SccCFDP_DATA_REQUIRED_BYTES_FOR_ENCODING - 2);
 
-	asn1SccAPP_MARKER_CFDP_SIZE cfdp_size = length;
+	asn1SccCFDP_SIZE cfdp_size = length;
 
-	asn1SccAPP_MARKER_BOOLEAN result = false;
+	asn1SccCFDP_BOOLEAN result = false;
 
 	cfdp_RI_read_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size, &result);
 
@@ -187,17 +187,17 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 				uint32_t offset, const uint8_t *data,
 				const uint32_t length)
 {
-	asn1SccAPP_MARKER_FILE_PATH cfpd_filepath;
+	asn1SccCFDP_FILE_PATH cfpd_filepath;
 	strcpy(cfpd_filepath.field_data, filepath);
 
-	asn1SccAPP_MARKER_CFDP_OFFSET cfdp_offset = offset;
-	asn1SccAPP_MARKER_CFDP_DATA cfdp_data;
+	asn1SccCFDP_OFFSET cfdp_offset = offset;
+	asn1SccCFDP_DATA cfdp_data;
 	cfdp_data.field_data.nCount = length;
 	memcpy(cfdp_data.field_data.arr, data, length);
 
-	asn1SccAPP_MARKER_CFDP_SIZE cfdp_size = length;
+	asn1SccCFDP_SIZE cfdp_size = length;
 
-	asn1SccAPP_MARKER_BOOLEAN result = false;
+	asn1SccCFDP_BOOLEAN result = false;
 
 	cfdp_RI_write_file(&cfpd_filepath, &cfdp_offset, &cfdp_data, &cfdp_size, &result);
 
@@ -207,12 +207,12 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 bool filestore_dump_directory_listing(void *user_data, const char *dirpath,
 					   uint8_t *listing_data, uint32_t length)
 {
-	asn1SccAPP_MARKER_FILE_PATH cfdp_dir_path;
+	asn1SccCFDP_FILE_PATH cfdp_dir_path;
 	strcpy(cfdp_dir_path.field_data, dirpath);
 
-	asn1SccAPP_MARKER_CFDP_DATA cfdp_listing_data;
-	asn1SccAPP_MARKER_CFDP_SIZE cfdp_size = length;
-	asn1SccAPP_MARKER_BOOLEAN result = false;
+	asn1SccCFDP_DATA cfdp_listing_data;
+	asn1SccCFDP_SIZE cfdp_size = length;
+	asn1SccCFDP_BOOLEAN result = false;
 
 	cfdp_RI_list_directory(&cfdp_dir_path, &cfdp_listing_data, &cfdp_size, &result);
 
@@ -226,11 +226,11 @@ bool filestore_dump_directory_listing(void *user_data, const char *dirpath,
 
 bool transport_send_pdu(void *transport_data, const byte pdu[], const int size)
 {
-	asn1SccAPP_MARKER_CFDP_DATA cfdp_data;
+	asn1SccCFDP_DATA cfdp_data;
 	cfdp_data.field_data.nCount = size;
 	memcpy(cfdp_data.field_data.arr, pdu, size);
 
-	asn1SccAPP_MARKER_BOOLEAN result = false;
+	asn1SccCFDP_BOOLEAN result = false;
 
 	cfdp_RI_send_pdu(&cfdp_data, &result);
 
@@ -239,7 +239,7 @@ bool transport_send_pdu(void *transport_data, const byte pdu[], const int size)
 
 bool transport_is_ready(void *transport_data)
 {
-	asn1SccAPP_MARKER_BOOLEAN result;
+	asn1SccCFDP_BOOLEAN result;
 	cfdp_RI_can_send(&result);
 	return result;
 }
@@ -253,7 +253,7 @@ void indication_callback(struct cfdp_core *core,
 			if(send_operations[i].is_slot_used &&
 			   send_operations[i].transaction_id.source_entity_id == transaction_id.source_entity_id &&
 			   send_operations[i].transaction_id.seq_number == transaction_id.seq_number){
-				asn1SccAPP_MARKER_BOOLEAN result = true;
+				asn1SccCFDP_BOOLEAN result = true;
 				cfdp_RI_cfdp_copy_file_operation_respond(&send_operations[i].operation_id,
 									 &result);
 				send_operations[i].is_slot_used = false;
@@ -262,8 +262,8 @@ void indication_callback(struct cfdp_core *core,
 		}
 	}
 
-	asn1SccAPP_MARKER_CFDP_INDICATION_TYPE cfdp_indication_type = indication_type;
-	asn1SccAPP_MARKER_CFDP_TRANSACTION_ID cfdp_transaction_id;
+	asn1SccCFDP_INDICATION_TYPE cfdp_indication_type = indication_type;
+	asn1SccCFDP_TRANSACTION_ID cfdp_transaction_id;
 	cfdp_transaction_id.source_entity_id = transaction_id.source_entity_id;
 	cfdp_transaction_id.seq_number = transaction_id.seq_number;
 
@@ -273,16 +273,16 @@ void indication_callback(struct cfdp_core *core,
 void error_callback(struct cfdp_core *core, const enum ErrorType error_type,
 		    const uint32_t error_code)
 {
-	asn1SccAPP_MARKER_CFDP_ERROR_TYPE cfdp_error_type = error_type;
-	asn1SccAPP_MARKER_CFDP_ERROR_CODE cfdp_error_code = error_code;
+	asn1SccCFDP_ERROR_TYPE cfdp_error_type = error_type;
+	asn1SccCFDP_ERROR_CODE cfdp_error_code = error_code;
 	cfdp_RI_error_callback(&cfdp_error_type, &cfdp_error_code);
 }
 
 bool timer_restart(void *timer_data, const uint32_t timeout,
 			void expired(struct receiver_timer *))
 {
-	const asn1SccAPP_MARKER_CFDP_INACTIVITY_TIMEOUT timer_timeout = timeout;
-	asn1SccAPP_MARKER_BOOLEAN result = false;
+	const asn1SccCFDP_INACTIVITY_TIMEOUT timer_timeout = timeout;
+	asn1SccCFDP_BOOLEAN result = false;
 
 	cfdp_RI_timer_restart(&timer_timeout, &result);
 
@@ -291,7 +291,7 @@ bool timer_restart(void *timer_data, const uint32_t timeout,
 
 bool timer_stop(void *timer_data)
 {
-	asn1SccAPP_MARKER_BOOLEAN result = false;
+	asn1SccCFDP_BOOLEAN result = false;
 
 	cfdp_RI_timer_stop(&result);
 	return result;

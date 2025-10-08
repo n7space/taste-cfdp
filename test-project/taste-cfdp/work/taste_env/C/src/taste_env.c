@@ -44,7 +44,7 @@ static void *receiver_thread(void *arg)
 			continue;
 		}
 
-		asn1SccGAMMA_CFDP_DATA pdu_data;
+		asn1SccCFDP_DATA pdu_data;
 		memcpy(pdu_data.field_data.arr, buffer, bytes_received);
 		pdu_data.field_data.nCount = bytes_received;
 
@@ -96,8 +96,8 @@ void taste_env_PI_close_and_unbind()
 
 
 void taste_env_PI_error_callback
-      (const asn1SccGAMMA_CFDP_ERROR_TYPE *IN_error_type,
-       const asn1SccGAMMA_CFDP_ERROR_CODE *IN_error_code)
+      (const asn1SccCFDP_ERROR_TYPE *IN_error_type,
+       const asn1SccCFDP_ERROR_CODE *IN_error_code)
 
 {
 	printf("cfdp error type=%ld error_code = %ld\n", *IN_error_type, *IN_error_code);
@@ -105,8 +105,8 @@ void taste_env_PI_error_callback
 
 
 void taste_env_PI_get_file_size
-      ( const asn1SccGAMMA_FILE_PATH *IN_file_path,
-        asn1SccGAMMA_CFDP_SIZE *OUT_size)
+      ( const asn1SccCFDP_FILE_PATH *IN_file_path,
+	asn1SccCFDP_SIZE *OUT_size)
 
 {
 	FILE *file = fopen(IN_file_path->field_data, "rb");
@@ -122,8 +122,8 @@ void taste_env_PI_get_file_size
 
 
 void taste_env_PI_indication_callback
-      (const asn1SccGAMMA_CFDP_INDICATION_TYPE *IN_indication_type,
-       const asn1SccGAMMA_CFDP_TRANSACTION_ID *IN_transaction_id)
+      (const asn1SccCFDP_INDICATION_TYPE *IN_indication_type,
+       const asn1SccCFDP_TRANSACTION_ID *IN_transaction_id)
 
 {
    printf("cfdp indication type=%ld source_entity_id = %lu seq_number = "
@@ -134,7 +134,7 @@ void taste_env_PI_indication_callback
 
 
 void taste_env_PI_can_send
-      (asn1SccGAMMA_BOOLEAN *OUT_result)
+      (asn1SccCFDP_BOOLEAN *OUT_result)
 
 {
    *OUT_result = true;
@@ -142,11 +142,11 @@ void taste_env_PI_can_send
 
 
 void taste_env_PI_read_file
-      (const asn1SccGAMMA_FILE_PATH *IN_file_path,
-       const asn1SccGAMMA_CFDP_OFFSET *IN_offset,
-       asn1SccGAMMA_CFDP_DATA *OUT_read_data,
-       const asn1SccGAMMA_CFDP_SIZE *IN_size,
-       asn1SccGAMMA_BOOLEAN *OUT_result)
+      (const asn1SccCFDP_FILE_PATH *IN_file_path,
+       const asn1SccCFDP_OFFSET *IN_offset,
+       asn1SccCFDP_DATA *OUT_read_data,
+       const asn1SccCFDP_SIZE *IN_size,
+       asn1SccCFDP_BOOLEAN *OUT_result)
 
 {
 	FILE *file = fopen(IN_file_path->field_data, "rb");
@@ -170,11 +170,11 @@ void taste_env_PI_read_file
 }
 
 void taste_env_PI_write_file
-      (const asn1SccGAMMA_FILE_PATH *IN_file_path,
-       const asn1SccGAMMA_CFDP_OFFSET *IN_offset,
-       const asn1SccGAMMA_CFDP_DATA *IN_write_data,
-       const asn1SccGAMMA_CFDP_SIZE *IN_size,
-       asn1SccGAMMA_BOOLEAN *OUT_result)
+      (const asn1SccCFDP_FILE_PATH *IN_file_path,
+       const asn1SccCFDP_OFFSET *IN_offset,
+       const asn1SccCFDP_DATA *IN_write_data,
+       const asn1SccCFDP_SIZE *IN_size,
+       asn1SccCFDP_BOOLEAN *OUT_result)
 
 {
 	FILE *file = fopen(IN_file_path->field_data, "a");
@@ -197,10 +197,10 @@ void taste_env_PI_write_file
 }
 
 void taste_env_PI_list_directory
-	(const asn1SccGAMMA_FILE_PATH * dir_path,
-	asn1SccGAMMA_CFDP_DATA *listing_data,
-	asn1SccGAMMA_CFDP_SIZE *size,
-	asn1SccGAMMA_BOOLEAN *OUT_result)
+	(const asn1SccCFDP_FILE_PATH * dir_path,
+	asn1SccCFDP_DATA *listing_data,
+	asn1SccCFDP_SIZE *size,
+	asn1SccCFDP_BOOLEAN *OUT_result)
 {
 	DIR *dir = opendir(dir_path->field_data);
 	if (!dir) {
@@ -232,8 +232,8 @@ void taste_env_PI_list_directory
 }
 
 void taste_env_PI_send_pdu
-      (const asn1SccGAMMA_CFDP_DATA *IN_pdu_data,
-       asn1SccGAMMA_BOOLEAN *OUT_result)
+      (const asn1SccCFDP_DATA *IN_pdu_data,
+       asn1SccCFDP_BOOLEAN *OUT_result)
 
 {
 	struct sockaddr_in receiver_addr;
@@ -254,14 +254,14 @@ void taste_env_PI_send_pdu
 }
 
 void taste_env_PI_timer_restart
-	(const asn1SccGAMMA_CFDP_INACTIVITY_TIMEOUT * IN_timeout,
-	 asn1SccGAMMA_BOOLEAN *OUT_result)
+	(const asn1SccCFDP_INACTIVITY_TIMEOUT * IN_timeout,
+	 asn1SccCFDP_BOOLEAN *OUT_result)
 {
 	*OUT_result = true;
 }
 
 
-void taste_env_PI_timer_stop(asn1SccGAMMA_BOOLEAN *OUT_result)
+void taste_env_PI_timer_stop(asn1SccCFDP_BOOLEAN *OUT_result)
 {
 	*OUT_result = true;
 }
