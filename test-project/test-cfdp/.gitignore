@@ -81,32 +81,14 @@ work/bridge/C/*
 work/bridge/C/src/*
 !work/bridge/C/src/bridge.c
 
-# Except BRIDGE_A source files
-!work/bridge_a
-work/bridge_a/*
-!work/bridge_a/C
-work/bridge_a/C/*
-!work/bridge_a/C/src
-work/bridge_a/C/src/*
-!work/bridge_a/C/src/bridge_a.c
-
-# Except BRIDGE_B source files
-!work/bridge_b
-work/bridge_b/*
-!work/bridge_b/C
-work/bridge_b/C/*
-!work/bridge_b/C/src
-work/bridge_b/C/src/*
-!work/bridge_b/C/src/bridge_b.c
-
-# Except BRIDGE_C source files
-!work/bridge_c
-work/bridge_c/*
-!work/bridge_c/C
-work/bridge_c/C/*
-!work/bridge_c/C/src
-work/bridge_c/C/src/*
-!work/bridge_c/C/src/bridge_c.c
+# Except COLLECTOR source files
+!work/collector
+work/collector/*
+!work/collector/C
+work/collector/C/*
+!work/collector/C/src
+work/collector/C/src/*
+!work/collector/C/src/collector.c
 
 # Except FILESYSTEMPROXY source files
 !work/filesystemproxy

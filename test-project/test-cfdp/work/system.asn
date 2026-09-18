@@ -18,9 +18,9 @@ BEGIN
        
        bridge,
        
-       bridge-a,
-       
        cfdp,
+       
+       collector,
        
        computer,
        
