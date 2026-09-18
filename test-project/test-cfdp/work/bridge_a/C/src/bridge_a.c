@@ -30,3 +30,24 @@ void bridge_a_PI_send_pdu
     *OUT_result = true;
 }
 
+void bridge_a_PI_error_callback
+    (const asn1SccCFDP_ERROR_TYPE *IN_error_type,
+     const asn1SccCFDP_ERROR_CODE *IN_error_code)
+
+{
+    asn1SccError_Info i;
+    i.err_type = *IN_error_type;
+    i.err_code = *IN_error_code;
+    bridge_a_RI_err(&i);
+}
+
+void bridge_a_PI_indication_callback
+    (const asn1SccCFDP_INDICATION_TYPE *IN_indication_type,
+     const asn1SccCFDP_TRANSACTION_ID *IN_transaction_id)
+
+{
+    asn1SccIndication_Info i;
+    i.ind_type = *IN_indication_type;
+    i.trans_id = *IN_transaction_id;
+    bridge_a_RI_indication(&i);
+}
