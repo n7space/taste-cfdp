@@ -26,7 +26,7 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, */
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
-#ifndef __linux__
+
 /** \addtogroup flashd_module Flash Memory Interface
  * The flash driver manages the programming, erasing, locking and unlocking
  * sequences with dedicated commands.
@@ -589,4 +589,3 @@ extern uint32_t FLASHD_ClearGPNVM(FlashAccess* flashAccess, uint8_t ucGPNVM)
 	return 0;
 }
 
-#endif

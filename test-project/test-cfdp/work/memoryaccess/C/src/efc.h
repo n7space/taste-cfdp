@@ -26,7 +26,7 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, */
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
-#ifndef __linux__
+
 /**
  * \file
  *
@@ -128,4 +128,3 @@ extern void EFC_SetFlashAccessMode(Efc *efc, uint32_t dwMode);
 
 #endif /* #ifndef _EEFC_ */
 
-#endif

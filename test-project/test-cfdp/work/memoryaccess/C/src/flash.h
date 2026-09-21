@@ -1,8 +1,6 @@
 #ifndef FLASH_H
 #define FLASH_H
 
-#ifndef __linux__
-
 #include "component_efc.h"
 
 #if defined(N7S_TARGET_SAMV71Q21)
@@ -24,7 +22,5 @@ typedef struct {
     uint32_t lock_bits;
     uint32_t lock_region_size;
 } FlashAccess;
-
-#endif
 
 #endif // FLASH_H

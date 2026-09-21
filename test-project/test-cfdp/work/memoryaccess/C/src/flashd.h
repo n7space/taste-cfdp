@@ -26,7 +26,7 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, */
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
-#ifndef __linux__
+
 /**
  * \file
  *
@@ -91,4 +91,3 @@ extern uint32_t FLASHD_ReadUniqueID(FlashAccess* flashAccess, uint32_t *pdwUniqu
 
 #endif /* #ifndef _FLASHD_ */
 
-#endif

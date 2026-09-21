@@ -26,7 +26,7 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, */
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
-#ifndef __linux__
+
 #ifndef _SAMV71_EFC_COMPONENT_
 #define _SAMV71_EFC_COMPONENT_
 
@@ -118,4 +118,3 @@ typedef struct {
 
 
 #endif /* _SAMV71_EFC_COMPONENT_ */
-#endif

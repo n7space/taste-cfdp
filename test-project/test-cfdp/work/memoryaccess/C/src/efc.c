@@ -26,7 +26,7 @@
 /* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, */
 /* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.                           */
 /* ---------------------------------------------------------------------------- */
-#ifndef __linux__
+
 /** \addtogroup efc_module Working with EEFC
  *  \ingroup peripherals_module
  *
@@ -275,6 +275,4 @@ extern void EFC_SetFlashAccessMode(Efc *efc, uint32_t dwMode)
 	dwFmr = dwMode;
 	EFC_WriteFMR(efc, dwFmr);
 }
-
-#endif
 

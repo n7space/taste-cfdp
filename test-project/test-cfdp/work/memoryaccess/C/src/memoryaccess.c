@@ -10,18 +10,13 @@
 #include "memoryaccess.h"
 #include <string.h>
 
-#ifdef __linux__
-static uint8_t memory_mock[2097152];
-#else
 #include "flashd.h"
 #include "flash.h"
 #include "efc.h"
 
-
 #define EFC_WAIT_STATE 6
 
 static FlashAccess flash_access;
-#endif
 
 void memoryaccess_startup(void)
 {
@@ -29,7 +24,6 @@ void memoryaccess_startup(void)
 
 void memoryaccess_PI_init(asn1SccMemoryAccess_Result *OUT_result)
 {
-#ifndef __linux__
     Efc* efc = NULL;
 #if defined(N7S_TARGET_SAMV71Q21)
     efc = ((Efc*)0x400E0C00U);
@@ -68,8 +62,6 @@ void memoryaccess_PI_init(asn1SccMemoryAccess_Result *OUT_result)
     flash_access.lock_bits = flash_lock_bits;
     flash_access.lock_region_size = flash_lock_region;
     FLASHD_Initialize(&flash_access, 0, 0);
-
-#endif
     *OUT_result = true;
 }
 
@@ -78,17 +70,10 @@ void memoryaccess_PI_memory_read
        asn1SccMemoryAccess_Data *OUT_memdata, asn1SccMemoryAccess_Result *OUT_result)
 
 {
-#ifdef __linux__
-    void* address = (void*)((uintptr_t)((uint8_t*)(*IN_address) - 0x00400000lu) + (uintptr_t)&memory_mock);
-    memcpy(OUT_memdata->arr, address, *IN_size);
-    OUT_memdata->nCount = *IN_size;
-    *OUT_result = true;
-#else
     void* address = (void*)(*IN_address);
     memcpy(OUT_memdata->arr, address, *IN_size);
     OUT_memdata->nCount = *IN_size;
     *OUT_result = true;
-#endif
 }
 
 void memoryaccess_PI_memory_write
@@ -96,11 +81,6 @@ void memoryaccess_PI_memory_write
        const asn1SccMemoryAccess_Data *IN_memdata, asn1SccMemoryAccess_Result *OUT_result)
 
 {
-#ifdef __linux__
-    void* address = (void*)((uintptr_t)((uint8_t*)(*IN_address) - 0x00400000lu) + (uintptr_t)&memory_mock);
-    memcpy(address, IN_memdata->arr, IN_memdata->nCount);
-    *OUT_result = true;
-#else
     if(*IN_address >= flash_access.address && *IN_address < flash_access.address + flash_access.size) {
         uint32_t result = FLASHD_Write(&flash_access, *IN_address, IN_memdata->arr, IN_memdata->nCount);
         if(result != 0) {
@@ -113,16 +93,10 @@ void memoryaccess_PI_memory_write
         memcpy(address, IN_memdata->arr, IN_memdata->nCount);
         *OUT_result = true;
     }
-#endif
 }
 
 void memoryaccess_PI_memory_erase(const asn1SccMemoryAccess_Address *IN_address, const asn1SccMemoryAccess_Size *IN_size, asn1SccMemoryAccess_Result *OUT_result)
 {
-#ifdef __linux__
-    void* address = (void*)((uintptr_t)((uint8_t*)(*IN_address) - 0x00400000lu) + (uintptr_t)&memory_mock);
-    memset(address, '\xff', *IN_size);
-    *OUT_result = true;
-#else
     if(*IN_address >= flash_access.address && *IN_address < flash_access.address + flash_access.size) {
         uint32_t page_address = (*IN_address / flash_access.page_size) * flash_access.page_size;
         uint32_t page_offset = *IN_address % flash_access.page_size;
@@ -136,6 +110,5 @@ void memoryaccess_PI_memory_erase(const asn1SccMemoryAccess_Address *IN_address,
     } else {
         *OUT_result = false;
     }
-#endif
 }
 
