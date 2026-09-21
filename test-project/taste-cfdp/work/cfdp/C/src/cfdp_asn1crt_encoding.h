@@ -7,12 +7,12 @@
 extern "C" {
 #endif
 
-flag OctetString_equal(int len1, int len2, const byte arr1[], const byte arr2[]);
+flag cfdp_OctetString_equal(int len1, int len2, const byte arr1[], const byte arr2[]);
 
 /* Byte stream functions */
 
 void cfdp_BitStream_AttachBuffer2(BitStream* pBitStrm, unsigned char* buf, long count, void* pushDataPrm, void* fetchDataPrm);
-asn1SccSint ByteStream_GetLength(ByteStream* pStrm);
+asn1SccSint cfdp_ByteStream_GetLength(ByteStream* pStrm);
 
 #ifdef ASN1SCC_STREAMING
 
@@ -60,7 +60,7 @@ flag cfdp_BitStream_DecodeConstraintPosWholeNumber(BitStream* pBitStrm, asn1SccU
 
 
 
-int GetNumberOfBitsForNonNegativeInteger(asn1SccUint v);
+int cfdp_GetNumberOfBitsForNonNegativeInteger(asn1SccUint v);
 
 
 

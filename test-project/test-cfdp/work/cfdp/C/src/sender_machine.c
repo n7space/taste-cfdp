@@ -243,7 +243,7 @@ static bool sender_machine_send_metadata(struct sender_machine *sender_machine)
 	long size = PDU_BUFFER_SIZE;
 	memset(sender_machine->core->pdu_buffer, 0x0, (size_t)PDU_BUFFER_SIZE);
 	BitStream bit_stream;
-	BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
+	cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
 			       size);
 	int error_code;
 
@@ -294,7 +294,7 @@ static bool sender_machine_send_file_data(struct sender_machine *sender_machine)
 	long size = PDU_BUFFER_SIZE;
 	memset(sender_machine->core->pdu_buffer, 0x0, (size_t)size);
 	BitStream bit_stream;
-	BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
+	cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
 			       size);
 	int error_code;
 
@@ -357,7 +357,7 @@ static bool sender_machine_send_eof(struct sender_machine *sender_machine)
 	long size = PDU_BUFFER_SIZE;
 	memset(sender_machine->core->pdu_buffer, 0x0, (size_t)size);
 	BitStream bit_stream;
-	BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
+	cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
 			       size);
 	int error_code;
 

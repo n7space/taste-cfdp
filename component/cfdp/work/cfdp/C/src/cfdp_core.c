@@ -50,6 +50,10 @@ void cfdp_core_init(struct cfdp_core *core, struct filestore_cfg *filestore,
 	core->pdu_buffer = core->data_buffer + PDU_BUFFER_OFFSET;
 	core->modified_pdu_buffer =
 	    core->data_buffer + MODIFIED_PDU_BUFFER_OFFSET;
+	core->typed_pdu =
+	    (cfdpCfdpPDU *)(core->data_buffer + TYPED_PDU_BUFFER_OFFSET);
+	core->event =
+	    (struct event *)(core->data_buffer + EVENT_BUFFER_OFFSET);
 }
 
 void cfdp_core_register_indication_callback(
@@ -96,13 +100,14 @@ static void cfdp_core_issue_link_state_procedure(struct cfdp_core *core,
 						 uint32_t destination_entity_id,
 						 enum EventType event_type)
 {
-	struct event event;
+	struct event *event = core->event;
 
 	if (core->sender[0].transaction.destination_entity_id ==
 	    destination_entity_id) {
-		event.transaction = core->sender[0].transaction;
-		event.type = event_type;
-		sender_machine_update_state(&core->sender[0], &event);
+		memset(event, 0x0, sizeof(*event));
+		event->transaction = core->sender[0].transaction;
+		event->type = event_type;
+		sender_machine_update_state(&core->sender[0], event);
 	}
 }
 
@@ -337,16 +342,17 @@ void cfdp_core_issue_request(struct cfdp_core *core,
 			     struct transaction_id transaction_id,
 			     enum EventType event_type)
 {
-	struct event event;
+	struct event *event = core->event;
+	memset(event, 0x0, sizeof(*event));
 
 	if (cfdp_core_is_request_to_sender(core, transaction_id)) {
-		event.transaction = core->sender[0].transaction;
-		event.type = event_type;
-		sender_machine_update_state(&core->sender[0], &event);
+		event->transaction = core->sender[0].transaction;
+		event->type = event_type;
+		sender_machine_update_state(&core->sender[0], event);
 	} else if (cfdp_core_is_request_to_receiver(core, transaction_id)) {
-		event.transaction = core->receiver[0].transaction;
-		event.type = event_type;
-		receiver_machine_update_state(&core->receiver[0], &event, NULL);
+		event->transaction = core->receiver[0].transaction;
+		event->type = event_type;
+		receiver_machine_update_state(&core->receiver[0], event, NULL);
 	}
 }
 
@@ -359,35 +365,38 @@ struct transaction_id cfdp_core_put(struct cfdp_core *core,
 {
 	core->transaction_sequence_number++;
 
-	struct transaction transaction = {
-	    .core = core,
-	    .filestore = core->filestore,
-	    .source_entity_id = core->entity_id,
-	    .seq_number = core->transaction_sequence_number,
-	    .destination_entity_id = destination_entity_id,
-	    .messages_to_user_count = messages_to_user_count};
+	struct event *event = core->event;
+	struct transaction *transaction = &event->transaction;
+	memset(event, 0x0, sizeof(*event));
+
+	transaction->core = core;
+	transaction->filestore = core->filestore;
+	transaction->source_entity_id = core->entity_id;
+	transaction->seq_number = core->transaction_sequence_number;
+	transaction->destination_entity_id = destination_entity_id;
+	transaction->messages_to_user_count = messages_to_user_count;
 
 	for (uint32_t i = 0; i < messages_to_user_count; i++) {
-		transaction.messages_to_user[i] = messages_to_user[i];
+		transaction->messages_to_user[i] = messages_to_user[i];
 	}
 
-	strncpy(transaction.source_filename, source_filename,
+	strncpy(transaction->source_filename, source_filename,
 		MAX_FILE_NAME_SIZE);
-	transaction.source_filename[MAX_FILE_NAME_SIZE - 1] = '\0';
+	transaction->source_filename[MAX_FILE_NAME_SIZE - 1] = '\0';
 
-	strncpy(transaction.destination_filename, destination_filename,
+	strncpy(transaction->destination_filename, destination_filename,
 		MAX_FILE_NAME_SIZE);
-	transaction.destination_filename[MAX_FILE_NAME_SIZE - 1] = '\0';
+	transaction->destination_filename[MAX_FILE_NAME_SIZE - 1] = '\0';
 
-	if (strcmp(VIRTUAL_LISTING_FILENAME, transaction.source_filename) ==
+	if (strcmp(VIRTUAL_LISTING_FILENAME, transaction->source_filename) ==
 	    0) {
-		transaction.virtual_source_file_size =
+		transaction->virtual_source_file_size =
 		    core->virtual_source_file_size;
-		transaction.virtual_source_file_data =
+		transaction->virtual_source_file_data =
 		    core->virtual_source_file_data;
 	} else {
-		transaction.virtual_source_file_size = 0;
-		transaction.virtual_source_file_data = NULL;
+		transaction->virtual_source_file_size = 0;
+		transaction->virtual_source_file_data = NULL;
 	}
 
 	if (core->sender[0].state != COMPLETED) {
@@ -395,12 +404,11 @@ struct transaction_id cfdp_core_put(struct cfdp_core *core,
 	}
 	core->sender[0].state = SEND_METADATA;
 
-	struct event event = {.transaction = transaction,
-			      .type = E0_ENTERED_STATE};
-	sender_machine_update_state(&core->sender[0], &event);
+	event->type = E0_ENTERED_STATE;
+	sender_machine_update_state(&core->sender[0], event);
 
-	event.type = E30_RECEIVED_PUT_REQUEST;
-	sender_machine_update_state(&core->sender[0], &event);
+	event->type = E30_RECEIVED_PUT_REQUEST;
+	sender_machine_update_state(&core->sender[0], event);
 
 	struct transaction_id transaction_id = {
 	    .source_entity_id = core->entity_id,
@@ -566,8 +574,9 @@ void cfdp_core_thaw(struct cfdp_core *core, uint32_t destination_entity_id)
 					     E41_RECEIVED_THAW);
 }
 
-static struct event create_event_for_delivery(struct cfdp_core *core,
-					      const cfdpCfdpPDU *pdu)
+static void create_event_for_delivery(struct cfdp_core *core,
+				      const cfdpCfdpPDU *pdu,
+				      struct event *event)
 {
 	enum EventType type = E50_NOOP;
 
@@ -604,26 +613,26 @@ static struct event create_event_for_delivery(struct cfdp_core *core,
 		}
 	}
 
-	struct event event;
-	event.type = type;
-
-	return event;
+	memset(event, 0x0, sizeof(*event));
+	event->type = type;
 }
 
 static void deliver_pdu_to_sender_machine(struct cfdp_core *core,
 					  const cfdpCfdpPDU *pdu)
 {
-	struct event event = create_event_for_delivery(core, pdu);
-	event.transaction = core->sender[0].transaction;
-	sender_machine_update_state(&core->sender[0], &event);
+	struct event *event = core->event;
+	create_event_for_delivery(core, pdu, event);
+	event->transaction = core->sender[0].transaction;
+	sender_machine_update_state(&core->sender[0], event);
 }
 
 static void deliver_pdu_to_receiver_machine(struct cfdp_core *core,
 					    const cfdpCfdpPDU *pdu)
 {
-	struct event event = create_event_for_delivery(core, pdu);
-	event.transaction = core->receiver[0].transaction;
-	receiver_machine_update_state(&core->receiver[0], &event, pdu);
+	struct event *event = core->event;
+	create_event_for_delivery(core, pdu, event);
+	event->transaction = core->receiver[0].transaction;
+	receiver_machine_update_state(&core->receiver[0], event, pdu);
 }
 
 static void handle_pdu_to_new_receiver_machine(
@@ -651,63 +660,65 @@ static void handle_pdu_to_new_receiver_machine(
 		return;
 	}
 
-	struct transaction transaction;
-	transaction.core = core;
-	transaction.filestore = core->filestore;
-	transaction.source_entity_id =
+	struct event *event = core->event;
+	struct transaction *transaction = &event->transaction;
+	memset(event, 0x0, sizeof(*event));
+
+	transaction->core = core;
+	transaction->filestore = core->filestore;
+	transaction->source_entity_id =
 	    bytes_to_ulong(pdu->pdu_header.source_entity_id.arr,
 			   pdu->pdu_header.source_entity_id.nCount);
-	transaction.seq_number =
+	transaction->seq_number =
 	    bytes_to_ulong(pdu->pdu_header.transaction_sequence_number.arr,
 			   pdu->pdu_header.transaction_sequence_number.nCount);
-	transaction.destination_entity_id =
+	transaction->destination_entity_id =
 	    bytes_to_ulong(pdu->pdu_header.destination_entity_id.arr,
 			   pdu->pdu_header.destination_entity_id.nCount);
-	transaction.messages_to_user_count = 0;
+	transaction->messages_to_user_count = 0;
 
-	transaction.virtual_source_file_size = 0;
-	transaction.virtual_source_file_data = NULL;
+	transaction->virtual_source_file_size = 0;
+	transaction->virtual_source_file_data = NULL;
 
 	if (pdu->payload.kind == PayloadData_file_directive_PRESENT &&
 	    pdu->payload.u.file_directive.file_directive_pdu.kind ==
 		FileDirectivePDU_metadata_pdu_PRESENT) {
 
 		decode_tlv_from_metadata_pdu(
-		    core, &transaction, pdu,
+		    core, transaction, pdu,
 		    bit_stream_with_raw_data_messages_to_user,
 		    size_of_pdu_raw_data);
 
 		strncpy(
-		    transaction.source_filename,
+		    transaction->source_filename,
 		    (const char *)pdu->payload.u.file_directive
 			.file_directive_pdu.u.metadata_pdu.source_file_name.arr,
 		    pdu->payload.u.file_directive.file_directive_pdu.u
 			.metadata_pdu.source_file_name.nCount);
-		transaction.source_filename
+		transaction->source_filename
 		    [pdu->payload.u.file_directive.file_directive_pdu.u
 			 .metadata_pdu.source_file_name.nCount] = '\0';
 
-		strncpy(transaction.destination_filename,
+		strncpy(transaction->destination_filename,
 			(const char *)
 			    pdu->payload.u.file_directive.file_directive_pdu.u
 				.metadata_pdu.destination_file_name.arr,
 			pdu->payload.u.file_directive.file_directive_pdu.u
 			    .metadata_pdu.destination_file_name.nCount);
-		transaction.destination_filename
+		transaction->destination_filename
 		    [pdu->payload.u.file_directive.file_directive_pdu.u
 			 .metadata_pdu.destination_file_name.nCount] = '\0';
 
-		transaction.file_size =
+		transaction->file_size =
 		    pdu->payload.u.file_directive.file_directive_pdu.u
 			.metadata_pdu.file_size;
-		transaction.file_position = 0;
+		transaction->file_position = 0;
 	}
 
 	core->receiver[0].state = WAIT_FOR_MD;
 
-	struct event event = {.transaction = transaction,
-			      .type = E0_ENTERED_STATE};
-	receiver_machine_update_state(&core->receiver[0], &event, pdu);
+	event->type = E0_ENTERED_STATE;
+	receiver_machine_update_state(&core->receiver[0], event, pdu);
 	deliver_pdu_to_receiver_machine(core, pdu);
 }
 
@@ -720,51 +731,52 @@ void cfdp_core_received_pdu(struct cfdp_core *core, unsigned char *buf,
 	BitStream bit_stream;
 	cfdp_BitStream_AttachBuffer(&bit_stream, buf, count);
 
-	cfdpCfdpPDU pdu;
+	cfdpCfdpPDU *pdu = core->typed_pdu;
+	memset(pdu, 0x0, sizeof(*pdu));
 	int32_t error_code = 0;
-	if (!cfdpCfdpPDU_ACN_Decode(&pdu, &bit_stream, &error_code)) {
+	if (!cfdpCfdpPDU_ACN_Decode(pdu, &bit_stream, &error_code)) {
 		cfdp_core_issue_error(core, ASN1SCC_ERROR, error_code);
 		return;
 	}
 
-	if (pdu.pdu_header.transmission_mode == TransmissionMode_acknowledged) {
+	if (pdu->pdu_header.transmission_mode == TransmissionMode_acknowledged) {
 		cfdp_core_issue_error(core, UNSUPPORTED_ACTION, 0);
 		return;
 	}
 
 	// This is done to properly initialize file_data.nCount
-	if (pdu.payload.kind == PayloadData_file_data_PRESENT) {
+	if (pdu->payload.kind == PayloadData_file_data_PRESENT) {
 		cfdpFileDataPDU *file_data_pdu =
-		    &(pdu.payload.u.file_data.file_data_pdu);
+		    &(pdu->payload.u.file_data.file_data_pdu);
 		file_data_pdu->file_data
 		    .arr[file_data_pdu->file_data.nCount - 1] = buf[count - 1];
-	} else if (pdu.payload.kind == PayloadData_file_directive_PRESENT &&
-		   pdu.payload.u.file_directive.file_directive_pdu.kind ==
+	} else if (pdu->payload.kind == PayloadData_file_directive_PRESENT &&
+		   pdu->payload.u.file_directive.file_directive_pdu.kind ==
 		       FileDirectivePDU_metadata_pdu_PRESENT) {
 	}
 
 	struct transaction_id transaction_id;
 	transaction_id.source_entity_id =
-	    bytes_to_ulong(pdu.pdu_header.source_entity_id.arr,
-			   pdu.pdu_header.source_entity_id.nCount);
+	    bytes_to_ulong(pdu->pdu_header.source_entity_id.arr,
+			   pdu->pdu_header.source_entity_id.nCount);
 	transaction_id.seq_number =
-	    bytes_to_ulong(pdu.pdu_header.transaction_sequence_number.arr,
-			   pdu.pdu_header.transaction_sequence_number.nCount);
+	    bytes_to_ulong(pdu->pdu_header.transaction_sequence_number.arr,
+			   pdu->pdu_header.transaction_sequence_number.nCount);
 
 	if (cfdp_core_is_request_to_sender(core, transaction_id)) {
 		if (core->sender[0].state != COMPLETED) {
-			deliver_pdu_to_sender_machine(core, &pdu);
+			deliver_pdu_to_sender_machine(core, pdu);
 			return;
 		}
 	}
 
 	if (cfdp_core_is_request_to_receiver(core, transaction_id)) {
 		if (core->receiver[0].state != COMPLETED) {
-			deliver_pdu_to_receiver_machine(core, &pdu);
+			deliver_pdu_to_receiver_machine(core, pdu);
 			return;
 		}
 	}
-	handle_pdu_to_new_receiver_machine(core, &pdu, &bit_stream, count);
+	handle_pdu_to_new_receiver_machine(core, pdu, &bit_stream, count);
 }
 
 void cfdp_core_run_fault_handler(struct cfdp_core *core,

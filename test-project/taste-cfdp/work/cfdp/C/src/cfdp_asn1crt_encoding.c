@@ -7,16 +7,16 @@
 
 
 
-const byte masks[] = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
-const byte masksb[] = { 0x0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF };
+const byte cfdp_masks[] = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+const byte cfdp_masksb[] = { 0x0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF };
 
-const asn1SccUint32 masks2[] = { 0x0,
+const asn1SccUint32 cfdp_masks2[] = { 0x0,
 0xFF,
 0xFF00,
 0xFF0000,
 0xFF000000 };
 
-flag OctetString_equal(int len1, int len2, const byte arr1[], const byte arr2[])
+flag cfdp_OctetString_equal(int len1, int len2, const byte arr1[], const byte arr2[])
 {
 	return (len1 == len2) && (memcmp(arr1, arr2, len1) == 0);
 }
@@ -28,7 +28,7 @@ flag OctetString_equal(int len1, int len2, const byte arr1[], const byte arr2[])
 
 
 
-asn1SccSint ByteStream_GetLength(ByteStream* pStrm)
+asn1SccSint cfdp_ByteStream_GetLength(ByteStream* pStrm)
 {
     return pStrm->currentByte;
 }
@@ -151,10 +151,10 @@ void cfdp_BitStream_AppendBits(BitStream* pBitStrm, const byte* srcBuffer, int n
 void cfdp_BitStream_AppendBit(BitStream* pBitStrm, flag v)
 {
 	if (v) {
-		pBitStrm->buf[pBitStrm->currentByte] |= masks[pBitStrm->currentBit];
+        pBitStrm->buf[pBitStrm->currentByte] |= cfdp_masks[pBitStrm->currentBit];
 	}
 	else {
-		byte nmask = (byte)~masks[pBitStrm->currentBit];
+        byte nmask = (byte)~cfdp_masks[pBitStrm->currentBit];
 		pBitStrm->buf[pBitStrm->currentByte] &= nmask;
 	}
 
@@ -171,7 +171,7 @@ void cfdp_BitStream_AppendBit(BitStream* pBitStrm, flag v)
 
 flag cfdp_BitStream_ReadBit(BitStream* pBitStrm, flag* v)
 {
-	*v = pBitStrm->buf[pBitStrm->currentByte] & masks[pBitStrm->currentBit];
+    *v = pBitStrm->buf[pBitStrm->currentByte] & cfdp_masks[pBitStrm->currentBit];
 
 	if (pBitStrm->currentBit<7)
 		pBitStrm->currentBit++;
@@ -215,7 +215,7 @@ void cfdp_BitStream_AppendByte(BitStream* pBitStrm, byte v, flag negate)
 	int ncb = 8 - cb;
 	if (negate)
 		v = (byte)~v;
-	byte mask = (byte)~masksb[ncb];
+    byte mask = (byte)~cfdp_masksb[ncb];
 
 	pBitStrm->buf[pBitStrm->currentByte] &= mask;
 	pBitStrm->buf[pBitStrm->currentByte++] |= (byte)(v >> cb);
@@ -235,7 +235,7 @@ flag cfdp_BitStream_AppendByte0(BitStream* pBitStrm, byte v)
 	int cb = pBitStrm->currentBit;
 	int ncb = 8 - cb;
 
-	byte mask = (byte)~masksb[ncb];
+    byte mask = (byte)~cfdp_masksb[ncb];
 
 	pBitStrm->buf[pBitStrm->currentByte] &= mask;
 	pBitStrm->buf[pBitStrm->currentByte++] |= (byte)(v >> cb);
@@ -259,7 +259,7 @@ flag cfdp_BitStream_AppendByteArray(BitStream* pBitStrm, const byte arr[], const
     int cb = pBitStrm->currentBit;
     int ncb = 8 - cb;
 
-    byte mask = (byte)~masksb[ncb];
+    byte mask = (byte)~cfdp_masksb[ncb];
     byte nmask = (byte)~mask;
     //if (pBitStrm->currentByte + (int)arr_len + (cb > 0 ? 1 : 0) >= pBitStrm->count)
     if ( (pBitStrm->currentByte + arr_len)*8 + cb > pBitStrm->count*8)
@@ -378,12 +378,12 @@ void cfdp_BitStream_AppendPartialByte(BitStream* pBitStrm, byte v, byte nbits, f
 	int ncb = 8 - cb;
 	int totalBitsForNextByte;
 	if (negate)
-		v = masksb[nbits] & ((byte)~v);
-	byte mask1 = (byte)~masksb[ncb];
+        v = cfdp_masksb[nbits] & ((byte)~v);
+    byte mask1 = (byte)~cfdp_masksb[ncb];
 
 	if (totalBits <= 8) {
 		//static byte masksb[] = { 0x0, 0x1, 0x3, 0x7, 0xF, 0x1F, 0x3F, 0x7F, 0xFF };
-		byte mask2 = masksb[8 - totalBits];
+        byte mask2 = cfdp_masksb[8 - totalBits];
 		byte mask = mask1 | mask2;
 		//e.g. current bit = 3 --> mask =  1110 0000
 		//nbits = 3 --> totalBits = 6
@@ -405,7 +405,7 @@ void cfdp_BitStream_AppendPartialByte(BitStream* pBitStrm, byte v, byte nbits, f
 		pBitStrm->buf[pBitStrm->currentByte] &= mask1;
 		pBitStrm->buf[pBitStrm->currentByte++] |= (byte)(v >> totalBitsForNextByte);
 		bitstream_push_data_if_required(pBitStrm);
-		byte mask = (byte)~masksb[8 - totalBitsForNextByte];
+        byte mask = (byte)~cfdp_masksb[8 - totalBitsForNextByte];
 		pBitStrm->buf[pBitStrm->currentByte] &= mask;
 		pBitStrm->buf[pBitStrm->currentByte] |= (byte)(v << (8 - totalBitsForNextByte));
 		pBitStrm->currentBit = totalBitsForNextByte;
@@ -422,7 +422,7 @@ flag cfdp_BitStream_ReadPartialByte(BitStream* pBitStrm, byte *v, byte nbits)
 	int totalBitsForNextByte;
 
 	if (totalBits <= 8) {
-		*v = (byte)((pBitStrm->buf[pBitStrm->currentByte] >> (8 - totalBits)) & masksb[nbits]);
+        *v = (byte)((pBitStrm->buf[pBitStrm->currentByte] >> (8 - totalBits)) & cfdp_masksb[nbits]);
 		pBitStrm->currentBit += nbits;
 		if (pBitStrm->currentBit == 8) {
 			pBitStrm->currentBit = 0;
@@ -435,7 +435,7 @@ flag cfdp_BitStream_ReadPartialByte(BitStream* pBitStrm, byte *v, byte nbits)
 		*v = (byte)(pBitStrm->buf[pBitStrm->currentByte++] << totalBitsForNextByte);
 		bitstream_fetch_data_if_required(pBitStrm);
 		*v |= (byte)(pBitStrm->buf[pBitStrm->currentByte] >> (8 - totalBitsForNextByte));
-		*v &= masksb[nbits];
+        *v &= cfdp_masksb[nbits];
 		pBitStrm->currentBit = totalBitsForNextByte;
 	}
 	return pBitStrm->currentByte * 8 + pBitStrm->currentBit <= pBitStrm->count * 8;
@@ -496,7 +496,7 @@ static void cfdp_BitStream_EncodeNonNegativeInteger32Neg(BitStream* pBitStrm,
 	}
 
 	while (cc) {
-		asn1SccUint32 t1 = v & masks2[cc >> 3];
+        asn1SccUint32 t1 = v & cfdp_masks2[cc >> 3];
 		cc -= 8;
 		cfdp_BitStream_AppendByte(pBitStrm, (byte)(t1 >> cc), negate);
 	}
@@ -541,7 +541,7 @@ void cfdp_BitStream_EncodeNonNegativeInteger(BitStream* pBitStrm, asn1SccUint v)
 		int nBits;
 		cfdp_BitStream_EncodeNonNegativeInteger32Neg(pBitStrm, hi, 0);
 
-		nBits = GetNumberOfBitsForNonNegativeInteger(lo);
+        nBits = cfdp_GetNumberOfBitsForNonNegativeInteger(lo);
 		cfdp_BitStream_AppendNBitZero(pBitStrm, 32 - nBits);
 		cfdp_BitStream_EncodeNonNegativeInteger32Neg(pBitStrm, lo, 0);
 	}
@@ -579,7 +579,7 @@ flag cfdp_BitStream_DecodeNonNegativeInteger(BitStream* pBitStrm, asn1SccUint* v
 
 
 
-int GetNumberOfBitsForNonNegativeInteger32(asn1SccUint32 v)
+int cfdp_GetNumberOfBitsForNonNegativeInteger32(asn1SccUint32 v)
 {
 	int ret = 0;
 
@@ -605,17 +605,17 @@ int GetNumberOfBitsForNonNegativeInteger32(asn1SccUint32 v)
 	return ret;
 }
 
-int GetNumberOfBitsForNonNegativeInteger(asn1SccUint v)
+int cfdp_GetNumberOfBitsForNonNegativeInteger(asn1SccUint v)
 {
 #if WORD_SIZE==8
 	if (v<0x100000000LL)
-		return GetNumberOfBitsForNonNegativeInteger32((asn1SccUint32)v);
+        return cfdp_GetNumberOfBitsForNonNegativeInteger32((asn1SccUint32)v);
 	else {
 		asn1SccUint32 hi = (asn1SccUint32)(v >> 32);
-		return 32 + GetNumberOfBitsForNonNegativeInteger32(hi);
+        return 32 + cfdp_GetNumberOfBitsForNonNegativeInteger32(hi);
 	}
 #else
-	return GetNumberOfBitsForNonNegativeInteger32(v);
+    return cfdp_GetNumberOfBitsForNonNegativeInteger32(v);
 #endif
 }
 
@@ -636,8 +636,8 @@ void cfdp_BitStream_EncodeConstraintWholeNumber(BitStream* pBitStrm, asn1SccSint
 	range = (asn1SccUint)(max - min);
 	if (!range)
 		return;
-	nRangeBits = GetNumberOfBitsForNonNegativeInteger(range);
-	nBits = GetNumberOfBitsForNonNegativeInteger((asn1SccUint)(v - min));
+    nRangeBits = cfdp_GetNumberOfBitsForNonNegativeInteger(range);
+    nBits = cfdp_GetNumberOfBitsForNonNegativeInteger((asn1SccUint)(v - min));
 	cfdp_BitStream_AppendNBitZero(pBitStrm, nRangeBits - nBits);
 	cfdp_BitStream_EncodeNonNegativeInteger(pBitStrm, (asn1SccUint)(v - min));
 }
@@ -652,8 +652,8 @@ void cfdp_BitStream_EncodeConstraintPosWholeNumber(BitStream* pBitStrm, asn1SccU
 	range = (asn1SccUint)(max - min);
 	if (!range)
 		return;
-	nRangeBits = GetNumberOfBitsForNonNegativeInteger(range);
-	nBits = GetNumberOfBitsForNonNegativeInteger(v - min);
+    nRangeBits = cfdp_GetNumberOfBitsForNonNegativeInteger(range);
+    nBits = cfdp_GetNumberOfBitsForNonNegativeInteger(v - min);
 	cfdp_BitStream_AppendNBitZero(pBitStrm, nRangeBits - nBits);
 	cfdp_BitStream_EncodeNonNegativeInteger(pBitStrm, v - min);
 }
@@ -674,7 +674,7 @@ flag cfdp_BitStream_DecodeConstraintWholeNumber(BitStream* pBitStrm, asn1SccSint
 		return TRUE;
 	}
 
-	nRangeBits = GetNumberOfBitsForNonNegativeInteger(range);
+    nRangeBits = cfdp_GetNumberOfBitsForNonNegativeInteger(range);
 
 
 	if (cfdp_BitStream_DecodeNonNegativeInteger(pBitStrm, &uv, nRangeBits))
@@ -717,7 +717,7 @@ flag cfdp_BitStream_DecodeConstraintPosWholeNumber(BitStream* pBitStrm, asn1SccU
 		return TRUE;
 	}
 
-	nRangeBits = GetNumberOfBitsForNonNegativeInteger(range);
+    nRangeBits = cfdp_GetNumberOfBitsForNonNegativeInteger(range);
 
 	if (cfdp_BitStream_DecodeNonNegativeInteger(pBitStrm, &uv, nRangeBits))
 	{

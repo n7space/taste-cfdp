@@ -4,12 +4,12 @@
 #include <assert.h>
 
 void receiver_machine_init(struct receiver_machine *receiver_machine,
-			   struct transaction transaction)
+			   const struct transaction *transaction)
 {
-	receiver_machine->transaction = transaction;
+	receiver_machine->transaction = *transaction;
 	receiver_machine->transaction_id.source_entity_id =
-	    transaction.source_entity_id;
-	receiver_machine->transaction_id.seq_number = transaction.seq_number;
+	    transaction->source_entity_id;
+	receiver_machine->transaction_id.seq_number = transaction->seq_number;
 
 	receiver_machine->timer.core = receiver_machine->core;
 	receiver_machine->timer.transaction_id =
@@ -35,7 +35,7 @@ void receiver_machine_update_state(struct receiver_machine *receiver_machine,
 		switch (event->type) {
 		case E0_ENTERED_STATE: {
 			receiver_machine_init(receiver_machine,
-					      event->transaction);
+					      &event->transaction);
 			receiver_timer_restart(&receiver_machine->timer);
 			break;
 		}

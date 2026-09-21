@@ -729,7 +729,7 @@ void cfdp_core_received_pdu(struct cfdp_core *core, unsigned char *buf,
 									&count);
 
 	BitStream bit_stream;
-	BitStream_AttachBuffer(&bit_stream, buf, count);
+	cfdp_BitStream_AttachBuffer(&bit_stream, buf, count);
 
 	cfdpCfdpPDU *pdu = core->typed_pdu;
 	memset(pdu, 0x0, sizeof(*pdu));

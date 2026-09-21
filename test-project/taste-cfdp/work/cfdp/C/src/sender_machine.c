@@ -183,12 +183,12 @@ static void append_messages_to_user_to_bit_stream_with_metada_pdu(
 }
 
 void sender_machine_init(struct sender_machine *sender_machine,
-			 struct transaction transaction)
+			 const struct transaction *transaction)
 {
-	sender_machine->transaction = transaction;
+	sender_machine->transaction = *transaction;
 	sender_machine->transaction_id.source_entity_id =
-	    transaction.source_entity_id;
-	sender_machine->transaction_id.seq_number = transaction.seq_number;
+	    transaction->source_entity_id;
+	sender_machine->transaction_id.seq_number = transaction->seq_number;
 	sender_machine->condition_code = cfdpConditionCode_no_error;
 	sender_machine->is_frozen = false;
 	sender_machine->is_suspended = false;
@@ -203,43 +203,51 @@ void sender_machine_close(struct sender_machine *sender_machine)
 
 static bool sender_machine_send_metadata(struct sender_machine *sender_machine)
 {
-	cfdpCfdpPDU pdu;
+	cfdpCfdpPDU *pdu = sender_machine->core->typed_pdu;
 	cfdpPDUHeader header = create_pdu_header(sender_machine);
-	cfdpMetadataPDU metadata_pdu;
 
-	metadata_pdu.closure_requested = ClosureRequested_requested;
-	metadata_pdu.checksum_type =
+	memset(pdu, 0x0, sizeof(*pdu));
+
+	pdu->payload.u.file_directive.file_directive_pdu.u.metadata_pdu
+	    .closure_requested = ClosureRequested_requested;
+	pdu->payload.u.file_directive.file_directive_pdu.u.metadata_pdu
+	    .checksum_type =
 	    (cfdpChecksumType)sender_machine->core->checksum_type;
-	metadata_pdu.file_size =
+	pdu->payload.u.file_directive.file_directive_pdu.u.metadata_pdu.file_size =
 	    transaction_get_file_size(&sender_machine->transaction);
 
-	strncpy((char *)metadata_pdu.source_file_name.arr,
+	strncpy((char *)pdu->payload.u.file_directive.file_directive_pdu.u
+		    .metadata_pdu.source_file_name.arr,
 		sender_machine->transaction.source_filename,
 		MAX_FILE_NAME_SIZE);
-	metadata_pdu.source_file_name.nCount =
-	    strlen((const char *)metadata_pdu.source_file_name.arr);
+	pdu->payload.u.file_directive.file_directive_pdu.u.metadata_pdu
+	    .source_file_name.nCount =
+	    strlen((const char *)pdu->payload.u.file_directive
+		       .file_directive_pdu.u.metadata_pdu.source_file_name.arr);
 
-	strncpy((char *)metadata_pdu.destination_file_name.arr,
+	strncpy((char *)pdu->payload.u.file_directive.file_directive_pdu.u
+		    .metadata_pdu.destination_file_name.arr,
 		sender_machine->transaction.destination_filename,
 		MAX_FILE_NAME_SIZE);
-	metadata_pdu.destination_file_name.nCount =
-	    strlen((const char *)metadata_pdu.destination_file_name.arr);
+	pdu->payload.u.file_directive.file_directive_pdu.u.metadata_pdu
+	    .destination_file_name.nCount =
+	    strlen((const char *)pdu->payload.u.file_directive
+		       .file_directive_pdu.u.metadata_pdu.destination_file_name
+		       .arr);
 
-	pdu.pdu_header = header;
-	pdu.payload.kind = PayloadData_file_directive_PRESENT;
-	pdu.payload.u.file_directive.file_directive_pdu.kind =
+	pdu->pdu_header = header;
+	pdu->payload.kind = PayloadData_file_directive_PRESENT;
+	pdu->payload.u.file_directive.file_directive_pdu.kind =
 	    FileDirectivePDU_metadata_pdu_PRESENT;
-	pdu.payload.u.file_directive.file_directive_pdu.u.metadata_pdu =
-	    metadata_pdu;
 
 	long size = PDU_BUFFER_SIZE;
 	memset(sender_machine->core->pdu_buffer, 0x0, (size_t)PDU_BUFFER_SIZE);
 	BitStream bit_stream;
-	cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
+    cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
 			       size);
 	int error_code;
 
-	if (!cfdpCfdpPDU_ACN_Encode(&pdu, &bit_stream, &error_code, true)) {
+	if (!cfdpCfdpPDU_ACN_Encode(pdu, &bit_stream, &error_code, true)) {
 		cfdp_core_issue_error(sender_machine->core, ASN1SCC_ERROR,
 				      error_code);
 		sender_machine_close(sender_machine);
@@ -261,12 +269,13 @@ static bool sender_machine_send_metadata(struct sender_machine *sender_machine)
 
 static bool sender_machine_send_file_data(struct sender_machine *sender_machine)
 {
-	cfdpCfdpPDU pdu;
+	cfdpCfdpPDU *pdu = sender_machine->core->typed_pdu;
 	cfdpPDUHeader header = create_pdu_header(sender_machine);
-	cfdpFileDataPDU file_data_pdu;
 	uint32_t length;
 
-	file_data_pdu.segment_offset =
+	memset(pdu, 0x0, sizeof(*pdu));
+
+	pdu->payload.u.file_data.file_data_pdu.segment_offset =
 	    sender_machine->transaction.file_position;
 	if (!transaction_get_file_segment(
 		&sender_machine->transaction,
@@ -274,23 +283,22 @@ static bool sender_machine_send_file_data(struct sender_machine *sender_machine)
 		&length)) {
 		return false;
 	}
-	file_data_pdu.file_data.nCount = length;
-	strncpy((char *)file_data_pdu.file_data.arr,
+	pdu->payload.u.file_data.file_data_pdu.file_data.nCount = length;
+	strncpy((char *)pdu->payload.u.file_data.file_data_pdu.file_data.arr,
 		(const char *)sender_machine->core->file_segment_data_buffer,
 		length);
 
-	pdu.pdu_header = header;
-	pdu.payload.kind = PayloadData_file_data_PRESENT;
-	pdu.payload.u.file_data.file_data_pdu = file_data_pdu;
+	pdu->pdu_header = header;
+	pdu->payload.kind = PayloadData_file_data_PRESENT;
 
 	long size = PDU_BUFFER_SIZE;
 	memset(sender_machine->core->pdu_buffer, 0x0, (size_t)size);
 	BitStream bit_stream;
-	cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
+    cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
 			       size);
 	int error_code;
 
-	if (!cfdpCfdpPDU_ACN_Encode(&pdu, &bit_stream, &error_code, true)) {
+	if (!cfdpCfdpPDU_ACN_Encode(pdu, &bit_stream, &error_code, true)) {
 		cfdp_core_issue_error(sender_machine->core, ASN1SCC_ERROR,
 				      error_code);
 		return false;
@@ -329,30 +337,31 @@ static bool sender_machine_send_file_data(struct sender_machine *sender_machine)
 
 static bool sender_machine_send_eof(struct sender_machine *sender_machine)
 {
-	cfdpCfdpPDU pdu;
+	cfdpCfdpPDU *pdu = sender_machine->core->typed_pdu;
 	cfdpPDUHeader header = create_pdu_header(sender_machine);
-	cfdpEofPDU eof_pdu;
 
-	eof_pdu.condition_code = sender_machine->condition_code;
-	eof_pdu.file_checksum =
+	memset(pdu, 0x0, sizeof(*pdu));
+
+	pdu->payload.u.file_directive.file_directive_pdu.u.eof_pdu
+	    .condition_code = sender_machine->condition_code;
+	pdu->payload.u.file_directive.file_directive_pdu.u.eof_pdu.file_checksum =
 	    transaction_get_file_checksum(&sender_machine->transaction);
-	eof_pdu.file_size =
+	pdu->payload.u.file_directive.file_directive_pdu.u.eof_pdu.file_size =
 	    transaction_get_file_size(&sender_machine->transaction);
 
-	pdu.pdu_header = header;
-	pdu.payload.kind = PayloadData_file_directive_PRESENT;
-	pdu.payload.u.file_directive.file_directive_pdu.kind =
+	pdu->pdu_header = header;
+	pdu->payload.kind = PayloadData_file_directive_PRESENT;
+	pdu->payload.u.file_directive.file_directive_pdu.kind =
 	    FileDirectivePDU_eof_pdu_PRESENT;
-	pdu.payload.u.file_directive.file_directive_pdu.u.eof_pdu = eof_pdu;
 
 	long size = PDU_BUFFER_SIZE;
 	memset(sender_machine->core->pdu_buffer, 0x0, (size_t)size);
 	BitStream bit_stream;
-	cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
+    cfdp_BitStream_AttachBuffer(&bit_stream, sender_machine->core->pdu_buffer,
 			       size);
 	int error_code;
 
-	if (!cfdpCfdpPDU_ACN_Encode(&pdu, &bit_stream, &error_code, true)) {
+	if (!cfdpCfdpPDU_ACN_Encode(pdu, &bit_stream, &error_code, true)) {
 		cfdp_core_issue_error(sender_machine->core, ASN1SCC_ERROR,
 				      error_code);
 		return false;
@@ -374,7 +383,7 @@ void sender_machine_update_state(struct sender_machine *sender_machine,
 	if (sender_machine->state == SEND_METADATA) {
 		switch (event->type) {
 		case E0_ENTERED_STATE: {
-			sender_machine_init(sender_machine, event->transaction);
+			sender_machine_init(sender_machine, &event->transaction);
 			break;
 		}
 		case E30_RECEIVED_PUT_REQUEST: {

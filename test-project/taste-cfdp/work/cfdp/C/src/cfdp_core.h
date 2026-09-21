@@ -39,6 +39,8 @@ struct cfdp_core {
 	uint8_t *file_segment_data_buffer;
 	uint8_t *pdu_buffer;
 	uint8_t *modified_pdu_buffer;
+	cfdpCfdpPDU *typed_pdu;
+	struct event *event;
 
 	cfdp_core_indication_callback cfdp_core_indication_callback;
 	cfdp_core_error_callback cfdp_core_error_callback;

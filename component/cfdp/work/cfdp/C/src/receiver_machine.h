@@ -27,7 +27,7 @@ struct receiver_machine {
 };
 
 void receiver_machine_init(struct receiver_machine *receiver_machine,
-			   struct transaction transaction);
+			   const struct transaction *transaction);
 void receiver_machine_close(struct receiver_machine *receiver_machine);
 
 void receiver_machine_update_state(struct receiver_machine *receiver_machine,
