@@ -2,7 +2,7 @@
 
 Re-usable TASTE component providing CFDP (CCSDS File Delivery Protocol) Class 1 functionality, developed as a part of "Model-Based Execution Platform for Space Applications" project (contract 4000146882/24/NL/KK) financed by the European Space Agency.
 
-It wraps [N7S OBCP](https://github.com/n7space/n7s-obcp) in a TASTE component. The component itself is located in the **component/cfdp** directory. A demonstration project is provided in **test-project/taste-cfdp** directory. Basic tests can be executed by switching to the **test-project/taste-cfdp** directory and invoking:
+It wraps [N7S OBCP](https://github.com/n7space/n7s-obcp) in a TASTE component. The component itself is located in the **component/cfdp** directory. A demonstration project is provided in **test-project/taste-cfdp** directory. The component needs an user provided bridge between the component and the rest of TASTE system to properly handle ASN.1 data types. Basic tests can be executed by switching to the **test-project/taste-cfdp** directory and invoking:
 ```
 make test
 ``` 
