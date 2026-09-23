@@ -8,15 +8,11 @@
     !! file. The up-to-date signatures can be found in the header file. !!
 */
 #include "collector.h"
-//#include <stdio.h>
 
 static volatile int bridge_sent_count = 0;
 
 void collector_startup(void)
 {
-   // Write your initialisation code
-   // You may call sporadic required interfaces and start timers
-   // puts ("[collector] Startup");
 }
 
 void collector_PI_send_pdu

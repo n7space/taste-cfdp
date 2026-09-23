@@ -8,8 +8,6 @@
     !! file. The up-to-date signatures can be found in the header file. !!
 */
 #include "bridge.h"
-//#include <stdio.h>
-
 
 static volatile int bridge_received_count = 0;
 static volatile int bridge_processed_count = 0;

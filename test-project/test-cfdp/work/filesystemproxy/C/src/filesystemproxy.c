@@ -9,7 +9,6 @@
 */
 #include "filesystemproxy.h"
 #include <string.h>
-//#include <stdio.h>
 
 void filesystemproxy_startup(void)
 {
@@ -41,10 +40,6 @@ void filesystemproxy_PI_list_directory
        asn1SccCFDP_SIZE *OUT_listing_size,
        asn1SccCFDP_BOOLEAN *OUT_result)
 {
-    /*OUT_listing_data->field_data.nCount = 0;
-    OUT_listing_data->field_data.arr[0] = '\0';
-    *OUT_listing_size = 0;
-    *OUT_result = true; */
     asn1SccLITTLE_FS_REPOSITORY_PATH path;
     strncpy(path.field_data, IN_dir_path->field_data, 9);
     listing_data = OUT_listing_data;
@@ -81,9 +76,6 @@ void filesystemproxy_PI_read_file
        const asn1SccCFDP_SIZE *IN_size,
        asn1SccCFDP_BOOLEAN *OUT_result)
 {
-    /* OUT_read_data->field_data.nCount = *IN_size;
-    *OUT_result = true; */
-
     asn1SccLITTLE_FS_REPOSITORY_PATH path;
     strncpy(path.field_data, IN_file_path->field_data, 9);
     asn1SccLITTLE_FS_MEMORY_OFFSET offset = *IN_offset;
@@ -109,8 +101,6 @@ void filesystemproxy_PI_write_file
        const asn1SccCFDP_SIZE *IN_size,
        asn1SccCFDP_BOOLEAN *OUT_result)
 {
-    //*OUT_result = true;
-
     if(*IN_size != IN_write_data->field_data.nCount) {
         *OUT_result = false;
     }
