@@ -1,0 +1,109 @@
+# Ignore whole work directory
+work/*
+
+# Except Makefile.modelcheck
+!Makefile.modelcheck
+
+# Except work/system.asn
+!work/system.asn
+
+# Ignore qt creator cache directory
+.qtc_clangd
+
+# Ignore qt creator user files
+*.pro.user*
+
+# Ignore aadl files
+*.aadl
+
+# Except MEMORYACCESS source files
+!work/memoryaccess
+work/memoryaccess/*
+!work/memoryaccess/C
+work/memoryaccess/C/*
+!work/memoryaccess/C/src
+work/memoryaccess/C/src/*
+!work/memoryaccess/C/src/memoryaccess.c
+!work/memoryaccess/C/src/flashd.c
+!work/memoryaccess/C/src/flashd.h
+!work/memoryaccess/C/src/efc.h
+!work/memoryaccess/C/src/efc.c
+!work/memoryaccess/C/src/component_efc.h
+!work/memoryaccess/C/src/flash.h
+
+# Except TESTFUNCTION source files
+!work/testfunction
+work/testfunction/*
+!work/testfunction/C
+work/testfunction/C/*
+!work/testfunction/C/src
+work/testfunction/C/src/*
+!work/testfunction/C/src/testfunction.c
+
+# Except FILESYSTEM source files
+!work/filesystem
+work/filesystem/*
+!work/filesystem/C
+work/filesystem/C/*
+!work/filesystem/C/src
+work/filesystem/C/src/*
+!work/filesystem/C/src/filesystem.c
+!work/filesystem/C/src/lfs.c
+!work/filesystem/C/src/lfs.h
+!work/filesystem/C/src/lfs_util.c
+!work/filesystem/C/src/lfs_util.h
+
+# Except CFDP source files
+!work/cfdp
+work/cfdp/*
+!work/cfdp/C
+work/cfdp/C/*
+!work/cfdp/C/src
+work/cfdp/C/src/*
+!work/cfdp/C/src/*.c
+!work/cfdp/C/src/*.h
+
+# Except COMPUTER source files
+!work/computer
+work/computer/*
+!work/computer/C
+work/computer/C/*
+!work/computer/C/src
+work/computer/C/src/*
+!work/computer/C/src/computer.c
+
+# Except BRIDGE source files
+!work/bridge
+work/bridge/*
+!work/bridge/C
+work/bridge/C/*
+!work/bridge/C/src
+work/bridge/C/src/*
+!work/bridge/C/src/bridge.c
+
+# Except COLLECTOR source files
+!work/collector
+work/collector/*
+!work/collector/C
+work/collector/C/*
+!work/collector/C/src
+work/collector/C/src/*
+!work/collector/C/src/collector.c
+
+# Except FILESYSTEMPROXY source files
+!work/filesystemproxy
+work/filesystemproxy/*
+!work/filesystemproxy/C
+work/filesystemproxy/C/*
+!work/filesystemproxy/C/src
+work/filesystemproxy/C/src/*
+!work/filesystemproxy/C/src/filesystemproxy.c
+
+# Except MEMORYACCESSPROXY source files
+!work/memoryaccessproxy
+work/memoryaccessproxy/*
+!work/memoryaccessproxy/C
+work/memoryaccessproxy/C/*
+!work/memoryaccessproxy/C/src
+work/memoryaccessproxy/C/src/*
+!work/memoryaccessproxy/C/src/memoryaccessproxy.c

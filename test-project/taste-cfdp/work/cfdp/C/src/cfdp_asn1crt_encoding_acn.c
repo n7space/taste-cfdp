@@ -18,7 +18,7 @@ void cfdp_Acn_Enc_Int_PositiveInteger_ConstSize(BitStream* pBitStrm, asn1SccUint
 	if (encodedSizeInBits == 0)
 		return;
 	/* Get number of bits*/
-	nBits = GetNumberOfBitsForNonNegativeInteger(intVal);
+    nBits = cfdp_GetNumberOfBitsForNonNegativeInteger(intVal);
 	/* put required zeros*/
 	cfdp_BitStream_AppendNBitZero(pBitStrm, encodedSizeInBits - nBits);
 	/*Encode number */

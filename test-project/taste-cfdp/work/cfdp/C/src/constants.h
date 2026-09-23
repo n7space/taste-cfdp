@@ -61,7 +61,7 @@ enum ErrorType {
 // two messages are a necessery minimum for handling of file listing
 #define MAX_NUMBER_OF_MESSAGES_TO_USER 2
 
-#define CFDP_ALIGNMENT_SIZE 4
+#define CFDP_ALIGNMENT_SIZE 8
 #define CFDP_ALIGNED __attribute__((aligned(CFDP_ALIGNMENT_SIZE)))
 #define CFDP_ALIGN(size)                                                       \
 	(((size + (CFDP_ALIGNMENT_SIZE - 1)) / CFDP_ALIGNMENT_SIZE) *          \
@@ -82,10 +82,16 @@ enum ErrorType {
 #define PDU_BUFFER_OFFSET                                                      \
 	(FILE_SEGMENT_BUFFER_OFFSET + FILE_SEGMENT_BUFFER_SIZE)
 #define MODIFIED_PDU_BUFFER_OFFSET (PDU_BUFFER_OFFSET + PDU_BUFFER_SIZE)
+#define TYPED_PDU_BUFFER_SIZE PDU_BUFFER_SIZE
+#define EVENT_BUFFER_SIZE CFDP_BUFFER_SIZE(1024)
+#define TYPED_PDU_BUFFER_OFFSET                                                \
+	(MODIFIED_PDU_BUFFER_OFFSET + PDU_BUFFER_SIZE)
+#define EVENT_BUFFER_OFFSET                                                    \
+	(TYPED_PDU_BUFFER_OFFSET + TYPED_PDU_BUFFER_SIZE)
 
 #define CFDP_DATA_BUFFER_SIZE                                                  \
 	(VIRTUAL_SOURCE_FILE_BUFFER_SIZE + FILE_SEGMENT_BUFFER_SIZE +          \
-	 2 * PDU_BUFFER_SIZE)
+	 3 * PDU_BUFFER_SIZE + EVENT_BUFFER_SIZE)
 #define CFDP_DATA_BUFFER(name) uint8_t name[CFDP_DATA_BUFFER_SIZE] CFDP_ALIGNED
 
 extern const char VIRTUAL_LISTING_FILENAME[9];

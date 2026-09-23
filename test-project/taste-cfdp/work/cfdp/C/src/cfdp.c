@@ -35,6 +35,8 @@ bool filestore_write_to_file(void *filestore_data, const char *filepath,
 
 bool filestore_dump_directory_listing(void *user_data, const char *dirpath,
 					   uint8_t *listing_data, uint32_t length);
+bool filestore_delete_file(void *filestore_data,
+                              const char *filepath);
 
 bool transport_send_pdu(void *transport_data, const byte pdu[], const int size);
 
@@ -70,6 +72,7 @@ void cfdp_PI_cfdp_init(const asn1SccCFDP_ENTITY_ID *IN_entity_id,
 	filestore.filestore_read = filestore_read_file;
 	filestore.filestore_write = filestore_write_to_file;
 	filestore.filestore_dump_directory_listing = filestore_dump_directory_listing;
+    filestore.filestore_delete_file = filestore_delete_file;
 
 	transport.transport_data = NULL;
 	transport.transport_send_pdu = transport_send_pdu;
@@ -222,6 +225,12 @@ bool filestore_dump_directory_listing(void *user_data, const char *dirpath,
 
 	memcpy(listing_data, cfdp_listing_data.field_data.arr, cfdp_listing_data.field_data.nCount);
 	return true;
+}
+
+bool filestore_delete_file(void *filestore_data,
+                           const char *filepath)
+{
+    return true;
 }
 
 bool transport_send_pdu(void *transport_data, const byte pdu[], const int size)

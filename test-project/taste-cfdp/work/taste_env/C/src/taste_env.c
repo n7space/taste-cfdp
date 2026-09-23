@@ -232,9 +232,8 @@ void taste_env_PI_list_directory
 }
 
 void taste_env_PI_send_pdu
-      (const asn1SccCFDP_DATA *IN_pdu_data,
-       asn1SccCFDP_BOOLEAN *OUT_result)
-
+    (const asn1SccCFDP_DATA *IN_pdu_data,
+    asn1SccCFDP_BOOLEAN *OUT_result)
 {
 	struct sockaddr_in receiver_addr;
 	memset(&receiver_addr, 0, sizeof(receiver_addr));
@@ -249,8 +248,8 @@ void taste_env_PI_send_pdu
 		int errsv = errno;
 		printf("socket send error %d\n", errsv);
 	}
-	printf("socket bytes sent %d\n", bytes_sent);
-	*OUT_result = true;
+    printf("socket bytes sent %d\n", bytes_sent);
+    *OUT_result = true;
 }
 
 void taste_env_PI_timer_restart
